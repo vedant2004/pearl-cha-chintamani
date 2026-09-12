@@ -1,0 +1,22 @@
+{
+  "name": "Pearl Cha Chintamani - Ganesh Utsav 2026",
+  "short_name": "Chintamani",
+  "description": "Official Ganesh Utsav 2026 website for Pearl Community Hyderabad. Darshan, Pooja Timings, Events, and Live Updates.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2A080C",
+  "theme_color": "#2A080C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

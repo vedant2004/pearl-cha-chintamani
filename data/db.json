@@ -1,0 +1,548 @@
+{
+  "siteSettings": {
+    "siteTitle": "PEARL CHA CHINTAMANI",
+    "subtitle": "Ganesh Utsav 2026",
+    "tagline": "Ganpati Bappa Morya 🙏",
+    "activeCountdownId": "cd-1",
+    "liveAartiUrl": "",
+    "announcementTickerEnabled": true,
+    "apartmentName": "Pearl Apartments, Kondapur",
+    "city": "Hyderabad, Telangana"
+  },
+  "countdowns": [
+    {
+      "id": "cd-1",
+      "title": "Ganesh Chaturthi Aagman & Sthapana",
+      "targetDate": "2026-09-14T09:00:00",
+      "description": "The auspicious arrival of our beloved Pearl Cha Chintamani",
+      "isActive": true,
+      "postEventMessage": "Ganpati Bappa has arrived! Sthapana Pooja in progress at the Stage."
+    },
+    {
+      "id": "cd-2",
+      "title": "Today’s Maha Aarti",
+      "targetDate": "2026-09-14T19:30:00",
+      "description": "Grand evening Maha Aarti with 108 lamps at the Stage",
+      "isActive": false,
+      "postEventMessage": "Maha Aarti concluded. Prasadam is now being distributed at the Stage."
+    },
+    {
+      "id": "cd-3",
+      "title": "Grand Visarjan Miravand & Shobhayatra",
+      "targetDate": "2026-09-23T15:00:00",
+      "description": "Pudhchya varshi lavkar ya! Grand farewell procession starting from Stage.",
+      "isActive": false,
+      "postEventMessage": "Ganpati Bappa Morya, Pudhchya Varshi Lavkar Ya!"
+    }
+  ],
+  "visarjan": {
+    "enabled": true,
+    "title": "🌊 VISARJAN",
+    "subtitle": "Until we meet again, Bappa ❤️",
+    "targetDate": "2026-09-23T16:00:00",
+    "routeDescription": "Procession begins at Stage, moves through Main Gate, Inner Boulevard, and proceeds to the designated immersion tank with Dhol Tasha.",
+    "stageLocation": "Stage"
+  },
+  "poojaTimings": [
+    {
+      "id": "pt-1",
+      "name": "Ganpati Sthapana & Pran Pratishtha",
+      "date": "14 September 2026",
+      "time": "09:00 AM",
+      "description": "Vedic rituals, holy chanting, and welcoming Bappa to His royal throne.",
+      "location": "Stage",
+      "isSpecial": true,
+      "order": 1
+    },
+    {
+      "id": "pt-2",
+      "name": "Nitya Morning Aarti & Atharvashirsha",
+      "date": "Daily (14 - 23 Sep)",
+      "time": "07:30 AM",
+      "description": "Morning prayer followed by 21 avartan of Ganpati Atharvashirsha Pathan.",
+      "location": "Stage",
+      "isSpecial": false,
+      "order": 2
+    },
+    {
+      "id": "pt-3",
+      "name": "Nitya Evening Aarti",
+      "date": "Daily (14 - 23 Sep)",
+      "time": "07:30 PM",
+      "description": "Community evening prayer with dhol, shankh naad, and bhajans.",
+      "location": "Stage",
+      "isSpecial": false,
+      "order": 3
+    },
+    {
+      "id": "pt-4",
+      "name": "Special Sahasra Modak Maha Homam",
+      "date": "18 September 2026",
+      "time": "10:00 AM",
+      "description": "Sacred fire ritual offering 1,008 freshly made modaks for community prosperity.",
+      "location": "Stage",
+      "isSpecial": true,
+      "order": 4
+    },
+    {
+      "id": "pt-5",
+      "name": "Grand Maha Aarti & Chhappan Bhog",
+      "date": "22 September 2026",
+      "time": "08:00 PM",
+      "description": "Royal Chintamani Maha Aarti with 108 diyas and 56 sacred delicacies offered.",
+      "location": "Stage",
+      "isSpecial": true,
+      "order": 5
+    },
+    {
+      "id": "pt-6",
+      "name": "Uttar Pooja & Visarjan Aarti",
+      "date": "23 September 2026",
+      "time": "03:00 PM",
+      "description": "Farewell pooja, floral tribute, and concluding devotional prayer.",
+      "location": "Stage",
+      "isSpecial": true,
+      "order": 6
+    }
+  ],
+  "events": [
+    {
+      "id": "ev-1",
+      "name": "Grand Aagman & Dhol Tasha Procession",
+      "date": "14 September 2026",
+      "startTime": "08:00 AM",
+      "endTime": "10:30 AM",
+      "description": "Live traditional Nashik Dhol Tasha troupe accompanying Bappa into Pearl Community.",
+      "location": "Stage",
+      "image": "/images/ganpati-hero.jpg",
+      "category": "Cultural Program",
+      "isFeatured": true,
+      "order": 1
+    },
+    {
+      "id": "ev-2",
+      "name": "Evening Bhajan Sandhya & Kirtan",
+      "date": "15 September 2026",
+      "startTime": "08:15 PM",
+      "endTime": "10:00 PM",
+      "description": "Soulful devotional songs, abhangs, and musical offerings by community singers.",
+      "location": "Stage",
+      "image": "/images/maha-aarti.jpg",
+      "category": "Bhajan",
+      "isFeatured": true,
+      "order": 2
+    },
+    {
+      "id": "ev-3",
+      "name": "Kids Bal Ganesha Drawing & Clay Idol Making",
+      "date": "16 September 2026",
+      "startTime": "05:00 PM",
+      "endTime": "07:00 PM",
+      "description": "Eco-friendly clay Ganesha making workshop and art competition for children.",
+      "location": "Stage",
+      "image": "/images/ganpati-hero.jpg",
+      "category": "Kids Activities",
+      "isFeatured": false,
+      "order": 3
+    },
+    {
+      "id": "ev-4",
+      "name": "Traditional Rangoli & Flower Carpet Competition",
+      "date": "17 September 2026",
+      "startTime": "04:00 PM",
+      "endTime": "06:30 PM",
+      "description": "Showcase your creativity using vibrant colors, flower petals, and diyas.",
+      "location": "Stage",
+      "image": "/images/maha-aarti.jpg",
+      "category": "Cultural Program",
+      "isFeatured": false,
+      "order": 4
+    },
+    {
+      "id": "ev-5",
+      "name": "Cultural Classical Dance & Drama Night",
+      "date": "19 September 2026",
+      "startTime": "08:00 PM",
+      "endTime": "10:30 PM",
+      "description": "Bharatanatyam, Kathak, and musical drama enactments celebrating Lord Ganesha.",
+      "location": "Stage",
+      "image": "/images/maha-aarti.jpg",
+      "category": "Dance",
+      "isFeatured": true,
+      "order": 5
+    },
+    {
+      "id": "ev-6",
+      "name": "Community Antakshari & Musical Night",
+      "date": "20 September 2026",
+      "startTime": "08:00 PM",
+      "endTime": "10:00 PM",
+      "description": "Fun-filled family musical games and team antakshari for all blocks.",
+      "location": "Stage",
+      "image": "/images/maha-aarti.jpg",
+      "category": "Music",
+      "isFeatured": false,
+      "order": 6
+    },
+    {
+      "id": "ev-7",
+      "name": "Grand Visarjan Shobhayatra",
+      "date": "23 September 2026",
+      "startTime": "04:00 PM",
+      "endTime": "09:00 PM",
+      "description": "Gulal, fireworks, dhol tasha, and emotional farewell to Pearl Cha Chintamani.",
+      "location": "Stage",
+      "image": "/images/visarjan-procession.jpg",
+      "category": "Cultural Program",
+      "isFeatured": true,
+      "order": 7
+    }
+  ],
+  "announcements": [
+    {
+      "id": "anc-1",
+      "title": "Evening Aarti Timing Notice",
+      "content": "Evening Aarti timing changed to 7:30 PM today to allow more families to participate.",
+      "isImportant": true,
+      "publishDate": "2026-09-14",
+      "expiryDate": "2026-09-24",
+      "active": true
+    },
+    {
+      "id": "anc-2",
+      "title": "Eco-Friendly Clay Ganesha Kits Available",
+      "content": "Residents can collect free clay idol kits from the volunteer registration desk near the Stage.",
+      "isImportant": false,
+      "publishDate": "2026-09-13",
+      "expiryDate": "2026-09-17",
+      "active": true
+    },
+    {
+      "id": "anc-3",
+      "title": "Footwear & Crowd Safety Protocols",
+      "content": "Please use the designated footwear stands located on the left wing of the Stage area. Volunteers are on duty to assist senior citizens.",
+      "isImportant": false,
+      "publishDate": "2026-09-14",
+      "expiryDate": "2026-09-24",
+      "active": true
+    }
+  ],
+  "gallery": [
+    {
+      "id": "gal-1",
+      "title": "Pearl Cha Chintamani Divine Swaroop",
+      "caption": "The majestic royal alankar in pure gold and freshwater pearls at the Stage.",
+      "imageUrl": "/images/ganpati-hero.jpg",
+      "category": "Darshan",
+      "year": 2026,
+      "isFeatured": true,
+      "createdAt": "2026-09-14"
+    },
+    {
+      "id": "gal-2",
+      "title": "Community Maha Aarti Devotion",
+      "caption": "Hundreds of devotees offering lighted brass lamps during the evening prayer.",
+      "imageUrl": "/images/maha-aarti.jpg",
+      "category": "Aarti",
+      "year": 2026,
+      "isFeatured": true,
+      "createdAt": "2026-09-14"
+    },
+    {
+      "id": "gal-3",
+      "title": "Royal Visarjan Shobhayatra",
+      "caption": "Celebration of faith, color, and dhol tasha beats during Bappa’s procession.",
+      "imageUrl": "/images/visarjan-procession.jpg",
+      "category": "Visarjan",
+      "year": 2026,
+      "isFeatured": true,
+      "createdAt": "2026-09-14"
+    }
+  ],
+  "volunteers": [
+    {
+      "id": "vol-1789239005812-lx6y3",
+      "name": "Karan Joshi",
+      "flatNo": "Tower A - 1102",
+      "phone": "+91 98765 00000",
+      "category": "Pooja",
+      "notes": "Ready for morning aarti seva.",
+      "createdAt": "2026-09-12T18:50:05.812Z",
+      "status": "registered"
+    },
+    {
+      "id": "vol-1",
+      "name": "Aditya Sharma",
+      "flatNo": "Tower A - 504",
+      "phone": "+91 98765 43210",
+      "category": "Decoration",
+      "notes": "Available for floral mandap setup and stage lighting decoration.",
+      "createdAt": "2026-09-12T10:00:00",
+      "status": "confirmed"
+    },
+    {
+      "id": "vol-2",
+      "name": "Pooja Reddy",
+      "flatNo": "Tower B - 1202",
+      "phone": "+91 98123 45678",
+      "category": "Pooja",
+      "notes": "Happy to prepare pooja thalis and help priests with Vedic arrangements.",
+      "createdAt": "2026-09-12T11:30:00",
+      "status": "confirmed"
+    },
+    {
+      "id": "vol-3",
+      "name": "Rajesh Kulkarni",
+      "flatNo": "Tower C - 301",
+      "phone": "+91 99887 76655",
+      "category": "Visarjan",
+      "notes": "Security coordination and procession crowd management.",
+      "createdAt": "2026-09-12T14:15:00",
+      "status": "confirmed"
+    }
+  ],
+  "prasadam": [
+    {
+      "id": "pr-1",
+      "date": "14 September 2026",
+      "menu": "Ukadiche Modak, Sheera, and Panchamrit",
+      "time": "12:30 PM & 08:30 PM",
+      "location": "Stage",
+      "sponsorNotes": "Sponsored by Pearl Committee in welcoming Bappa.",
+      "isSpecial": true
+    },
+    {
+      "id": "pr-2",
+      "date": "15 September 2026",
+      "menu": "Kaju Katli, Boondi Laddoo, and Chana Sundal",
+      "time": "08:30 PM",
+      "location": "Stage",
+      "sponsorNotes": "Seva offered by Tower A residents.",
+      "isSpecial": false
+    },
+    {
+      "id": "pr-3",
+      "date": "16 September 2026",
+      "menu": "Puran Poli, Katachi Amti, and Kheer",
+      "time": "08:30 PM",
+      "location": "Stage",
+      "sponsorNotes": "Seva offered by Tower B residents.",
+      "isSpecial": true
+    },
+    {
+      "id": "pr-4",
+      "date": "22 September 2026",
+      "menu": "Chhappan Bhog Mahaprasad Feast",
+      "time": "01:00 PM - 03:30 PM",
+      "location": "Stage",
+      "sponsorNotes": "Grand community feast for all residents and staff.",
+      "isSpecial": true
+    }
+  ],
+  "competitions": [
+    {
+      "id": "comp-1",
+      "name": "Eco-Friendly Clay Rangoli Competition",
+      "date": "17 September 2026",
+      "time": "04:00 PM",
+      "category": "Art & Culture",
+      "description": "Theme: \"Royal Chintamani & Nature\". Materials: Organic rangoli powders, flowers, diyas. Open to all age groups.",
+      "registrationInfo": "Register with Event Coordinator by 16 Sep 6 PM.",
+      "winners": "1st: Neha Deshmukh (A-803), 2nd: Shweta Iyer (C-402), 3rd: Meera Patel (B-1101)",
+      "status": "upcoming"
+    },
+    {
+      "id": "comp-2",
+      "name": "Kids Shloka Recitation & Fancy Dress",
+      "date": "18 September 2026",
+      "time": "05:30 PM",
+      "category": "Kids Activities",
+      "description": "Children ages 4-14 dress as mythological characters or recite Ganesha shlokas.",
+      "registrationInfo": "Spots limited to 30 participants. Register at the Stage desk.",
+      "winners": "To be announced after the event.",
+      "status": "upcoming"
+    },
+    {
+      "id": "comp-3",
+      "name": "Traditional Dance Showdown",
+      "date": "19 September 2026",
+      "time": "08:00 PM",
+      "category": "Dance",
+      "description": "Solo and group devotional dances celebrating Indian classical and folk heritage.",
+      "registrationInfo": "Audio tracks must be submitted by 18 Sep evening.",
+      "winners": "To be announced after the event.",
+      "status": "upcoming"
+    }
+  ],
+  "mapMarkers": [
+    {
+      "id": "map-1",
+      "title": "🐘 Main Stage (Ganpati Mandap)",
+      "category": "stage",
+      "description": "The central sanctum where Pearl Cha Chintamani is enthroned. All poojas, aartis, and performances take place here.",
+      "x": 50,
+      "y": 42,
+      "icon": "sparkles"
+    },
+    {
+      "id": "map-2",
+      "title": "🚪 Main Security Gate",
+      "category": "gate",
+      "description": "Main resident and guest entry point. Security screening and volunteer badge counter.",
+      "x": 18,
+      "y": 86,
+      "icon": "door"
+    },
+    {
+      "id": "map-3",
+      "title": "🚗 Visitor & Festival Parking",
+      "category": "parking",
+      "description": "Dedicated parking zone for guests and delivery vehicles. Follow volunteer directions.",
+      "x": 25,
+      "y": 20,
+      "icon": "car"
+    },
+    {
+      "id": "map-4",
+      "title": "📸 Royal Photo Area",
+      "category": "photo",
+      "description": "Festive themed backdrop with antique brass pillars and marigold arches for family portraits.",
+      "x": 68,
+      "y": 35,
+      "icon": "camera"
+    },
+    {
+      "id": "map-5",
+      "title": "🍽️ Prasadam Distribution",
+      "category": "prasadam",
+      "description": "Prasadam counter directly adjacent to the Stage. Clean seating for elders.",
+      "x": 65,
+      "y": 55,
+      "icon": "gift"
+    },
+    {
+      "id": "map-6",
+      "title": "👟 Footwear Stand",
+      "category": "footwear",
+      "description": "Complimentary safe shoe rack facility managed by youth volunteers.",
+      "x": 35,
+      "y": 52,
+      "icon": "archive"
+    },
+    {
+      "id": "map-7",
+      "title": "🚻 Washrooms & Water Stations",
+      "category": "washroom",
+      "description": "Clean sanitized restrooms and cold mineral drinking water dispenser.",
+      "x": 82,
+      "y": 72,
+      "icon": "droplet"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "cnt-1",
+      "role": "Festival Committee President",
+      "name": "Mr. Vikram Sen",
+      "phone": "+91 98490 12345",
+      "availableHours": "8:00 AM - 10:00 PM"
+    },
+    {
+      "id": "cnt-2",
+      "role": "Event Coordinator & Cultural Lead",
+      "name": "Mrs. Sunita Rao",
+      "phone": "+91 98490 54321",
+      "availableHours": "9:00 AM - 9:00 PM"
+    },
+    {
+      "id": "cnt-3",
+      "role": "Head Priest (Pooja In-Charge)",
+      "name": "Panditji Vishwanath Shastri",
+      "phone": "+91 98490 99887",
+      "availableHours": "6:30 AM - 1:00 PM & 5:00 PM - 9:30 PM"
+    },
+    {
+      "id": "cnt-4",
+      "role": "Society Security & Emergency Desk",
+      "name": "Main Gate Control Room",
+      "phone": "+91 040 2345 6789",
+      "availableHours": "24 Hours / 7 Days"
+    }
+  ],
+  "donations": {
+    "heading": "Want to contribute to Pearl Cha Chintamani?",
+    "notice": "Please contact the festival committee for donation information.",
+    "contacts": [
+      {
+        "name": "Mr. Vikram Sen",
+        "phone": "+91 98490 12345",
+        "role": "Festival Committee President"
+      },
+      {
+        "name": "Mr. Anand Joshi",
+        "phone": "+91 98490 67890",
+        "role": "Treasurer & Committee Member"
+      }
+    ]
+  },
+  "blessings": [
+    {
+      "id": "bl-1789239005703-cgl5g",
+      "name": "Anil & Sangeeta",
+      "flatNo": "Tower B - 904",
+      "message": "Bappa bless all families of Pearl community with joy and good health! ??",
+      "status": "pending",
+      "createdAt": "2026-09-12T18:50:05.703Z"
+    },
+    {
+      "id": "bl-1",
+      "name": "Ramesh & Ananya Verma",
+      "flatNo": "A-702",
+      "message": "May Pearl Cha Chintamani bless our entire community with health, joy, unity, and abundance. Ganpati Bappa Morya! 🙏✨",
+      "status": "approved",
+      "createdAt": "2026-09-14T09:30:00"
+    },
+    {
+      "id": "bl-2",
+      "name": "Kavita & Suresh Nair",
+      "flatNo": "C-104",
+      "message": "Warmest wishes for Ganesh Utsav 2026 to every family at Pearl. Bappa’s darshan at the Stage is truly divine this year! 🌺🙏",
+      "status": "approved",
+      "createdAt": "2026-09-14T11:15:00"
+    },
+    {
+      "id": "bl-3",
+      "name": "Arjun & Priya Mehta",
+      "flatNo": "B-805",
+      "message": "Vakratunda Mahakaya Suryakoti Samaprabha! May Bappa remove all obstacles and fill every home with eternal peace.",
+      "status": "approved",
+      "createdAt": "2026-09-14T14:20:00"
+    }
+  ],
+  "memories": [
+    {
+      "id": "mem-1",
+      "year": 2025,
+      "title": "Pearl Cha Chintamani 2025 - \"Svarnim Darshan\"",
+      "description": "The celebrated 2025 Utsav featured our grand 9-foot eco-friendly idol and our first 100-member community Maha Aarti choir.",
+      "coverImage": "/images/maha-aarti.jpg",
+      "highlights": [
+        "Over 1,200 devotees participated in the Sthapana Aarti",
+        "25,000 eco-friendly modaks distributed across 10 days",
+        "Traditional Dhol Tasha performance with 40 youth drummers"
+      ]
+    },
+    {
+      "id": "mem-2",
+      "year": 2024,
+      "title": "Pearl Cha Chintamani 2024 - \"Pratham Aagman\"",
+      "description": "The foundation year when Pearl Community brought together all 3 towers for a grand 10-day cultural extravaganza.",
+      "coverImage": "/images/visarjan-procession.jpg",
+      "highlights": [
+        "Inaugural Pearl Community Ganesh Mandap erected at the Stage",
+        "Inter-tower cultural sports and rangoli festival",
+        "Tearful and joyous visarjan procession with thousands joining"
+      ]
+    }
+  ]
+}
