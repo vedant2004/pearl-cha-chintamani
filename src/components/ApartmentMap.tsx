@@ -12,6 +12,18 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
   const [activeMarker, setActiveMarker] = useState<MapMarker | null>(markers[0] || null);
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
+  const cleanTitle = (title: string) => {
+    return title.replace(/^[\p{Emoji}\u200d\uFE0F\s]+/u, '').trim() || title;
+  };
+
+  const handleCategoryChange = (catId: string) => {
+    setFilterCategory(catId);
+    const newFiltered = catId === 'all' ? markers : markers.filter((m) => m.category === catId);
+    if (newFiltered.length > 0 && (!activeMarker || !newFiltered.some((m) => m.id === activeMarker.id))) {
+      setActiveMarker(newFiltered[0]);
+    }
+  };
+
   const filteredMarkers =
     filterCategory === 'all'
       ? markers
@@ -70,11 +82,12 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
             { id: 'parking', label: '🚗 Parking' },
             { id: 'photo', label: '📸 Photo Area' },
             { id: 'prasadam', label: '🍽️ Prasadam' },
+            { id: 'footwear', label: '👟 Footwear' },
             { id: 'washroom', label: '🚻 Washrooms' },
           ].map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setFilterCategory(cat.id)}
+              onClick={() => handleCategoryChange(cat.id)}
               style={{
                 padding: '6px 14px',
                 borderRadius: '16px',
@@ -253,7 +266,7 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                     }}
                   >
                     <span>{getMarkerIcon(marker.category)}</span>
-                    <span style={{ whiteSpace: 'nowrap' }}>{marker.title}</span>
+                    <span style={{ whiteSpace: 'nowrap' }}>{cleanTitle(marker.title)}</span>
                   </button>
                 );
               })}
@@ -281,7 +294,7 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '1.5rem' }}>{getMarkerIcon(activeMarker.category)}</span>
                   <h3 className="font-royal gold-shimmer" style={{ fontSize: '1.3rem', fontWeight: 800 }}>
-                    {activeMarker.title}
+                    {cleanTitle(activeMarker.title)}
                   </h3>
                 </div>
                 <span

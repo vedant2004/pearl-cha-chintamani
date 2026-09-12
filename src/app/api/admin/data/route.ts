@@ -4,8 +4,8 @@ import { isAdminAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
-  const isAuth = await isAdminAuthenticated();
+export async function GET(request: Request) {
+  const isAuth = await isAdminAuthenticated(request);
   if (!isAuth) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

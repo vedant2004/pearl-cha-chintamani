@@ -6,7 +6,7 @@ import { FullDatabaseState } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
-  const isAuth = await isAdminAuthenticated();
+  const isAuth = await isAdminAuthenticated(request);
   if (!isAuth) {
     return NextResponse.json({ error: 'Unauthorized access to admin update' }, { status: 401 });
   }

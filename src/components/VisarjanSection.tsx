@@ -10,6 +10,7 @@ interface VisarjanProps {
 }
 
 export default function VisarjanSection({ config }: VisarjanProps) {
+  const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -19,6 +20,7 @@ export default function VisarjanSection({ config }: VisarjanProps) {
   });
 
   useEffect(() => {
+    setMounted(true);
     if (!config?.targetDate) return;
 
     const updateTimer = () => {
@@ -163,7 +165,7 @@ export default function VisarjanSection({ config }: VisarjanProps) {
                 GRAND VISARJAN COUNTDOWN
               </div>
 
-              {timeLeft.isCompleted ? (
+              {mounted && timeLeft.isCompleted ? (
                 <div
                   style={{
                     padding: '20px',

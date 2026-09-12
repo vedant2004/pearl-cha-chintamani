@@ -24,9 +24,27 @@ export async function verifyAdminToken(token: string): Promise<boolean> {
   }
 }
 
-export async function isAdminAuthenticated(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
+export async function isAdminAuthenticated(request?: Request): Promise<boolean> {
+  let token: string | undefined;
+  if (request) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+    if (!token) {
+      const cookieHeader = request.headers.get('cookie') || '';
+      const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=([^;]*)`));
+      if (match) token = decodeURIComponent(match[1]);
+    }
+  }
+  if (!token) {
+    try {
+      const cookieStore = await cookies();
+      token = cookieStore.get(COOKIE_NAME)?.value;
+    } catch {
+      // Fall through if outside request store context
+    }
+  }
   if (!token) return false;
   return verifyAdminToken(token);
 }

@@ -12,6 +12,7 @@ interface HeaderProps {
 
 export default function Header({ announcementText, isImportantAnnouncement }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -184,7 +185,7 @@ export default function Header({ announcementText, isImportantAnnouncement }: He
             }}
             className="desktop-nav"
           >
-            {navLinks.slice(0, 7).map((link) => (
+            {navLinks.slice(0, 6).map((link) => (
               <a
                 key={link.name}
                 href={link.href}
@@ -202,6 +203,64 @@ export default function Header({ announcementText, isImportantAnnouncement }: He
                 {link.name}
               </a>
             ))}
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => setMoreOpen(!moreOpen)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: moreOpen ? 'var(--gold-400)' : 'var(--text-muted)',
+                  fontSize: '0.88rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px 0',
+                }}
+              >
+                <span>More</span>
+                <span style={{ fontSize: '0.65rem' }}>▼</span>
+              </button>
+              {moreOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    background: 'rgba(28, 3, 6, 0.98)',
+                    border: '1px solid var(--border-gold)',
+                    borderRadius: '8px',
+                    padding: '6px 0',
+                    minWidth: '150px',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.8)',
+                    zIndex: 60,
+                  }}
+                >
+                  {navLinks.slice(6).map((link) => (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      onClick={() => setMoreOpen(false)}
+                      style={{
+                        display: 'block',
+                        padding: '8px 16px',
+                        color: 'var(--cream)',
+                        textDecoration: 'none',
+                        fontSize: '0.84rem',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212, 175, 55, 0.15)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      {link.name}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Action Buttons */}
@@ -332,22 +391,6 @@ export default function Header({ announcementText, isImportantAnnouncement }: He
           </div>
         )}
       </header>
-
-      <style jsx global>{`
-        @media (min-width: 1080px) {
-          .desktop-nav {
-            display: flex !important;
-          }
-          .mobile-toggle {
-            display: none !important;
-          }
-        }
-        @media (max-width: 640px) {
-          .admin-btn-text {
-            display: none;
-          }
-        }
-      `}</style>
     </>
   );
 }

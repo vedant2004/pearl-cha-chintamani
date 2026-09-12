@@ -27,6 +27,7 @@ export default function Hero({
   upcomingPooja,
   announcementSnippet,
 }: HeroProps) {
+  const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
     hours: 0,
@@ -36,6 +37,7 @@ export default function Hero({
   });
 
   useEffect(() => {
+    setMounted(true);
     if (!activeCountdown?.targetDate) return;
 
     const calculateTimeLeft = () => {
@@ -295,7 +297,7 @@ export default function Hero({
                 {activeCountdown.description}
               </p>
 
-              {timeLeft.isExpired ? (
+              {mounted && timeLeft.isExpired ? (
                 <div
                   style={{
                     padding: '16px',

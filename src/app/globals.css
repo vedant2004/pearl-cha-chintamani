@@ -400,3 +400,54 @@ body {
     animation: none !important;
   }
 }
+
+/* Navigation & Admin Responsiveness */
+.desktop-nav {
+  display: none;
+}
+.mobile-toggle {
+  display: flex;
+}
+
+@media (min-width: 1080px) {
+  .desktop-nav {
+    display: flex !important;
+  }
+  .mobile-toggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-btn-text {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 65px;
+    bottom: 0;
+    left: -260px;
+    z-index: 55;
+    transition: left 0.3s ease;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+  }
+  .admin-sidebar.mobile-open {
+    left: 0;
+  }
+  .admin-mobile-toggle {
+    display: flex !important;
+  }
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 861px) {
+  .admin-mobile-toggle {
+    display: none !important;
+  }
+}
+

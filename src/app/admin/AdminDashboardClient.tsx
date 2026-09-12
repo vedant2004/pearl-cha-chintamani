@@ -858,6 +858,211 @@ export default function AdminDashboardClient({ initialData }: Props) {
             </div>
           )}
 
+          {/* TAB: EVENTS */}
+          {activeTab === 'events' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Festival Events Management
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    Cultural programs, devotional bhajan nights, and competitions held at the <strong>Stage</strong>.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newEvent: FestivalEvent = {
+                      id: `ev-${Date.now()}`,
+                      name: 'Devotional Bhajan Sandhya',
+                      date: '17 September 2026',
+                      startTime: '07:30 PM',
+                      endTime: '09:30 PM',
+                      description: 'Special devotional music and collective prayers at the Stage.',
+                      location: 'Stage',
+                      image: '/images/maha-aarti.jpg',
+                      category: 'Bhajan',
+                      isFeatured: false,
+                      order: data.events.length + 1,
+                    };
+                    const updated = [...data.events, newEvent];
+                    saveSection('events', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Event</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {data.events.map((ev, index) => (
+                  <div key={ev.id} className="royal-card" style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h4 className="font-royal" style={{ fontSize: '1.15rem', color: 'var(--ivory)' }}>
+                          {ev.name}
+                        </h4>
+                        {ev.isFeatured && (
+                          <span style={{ fontSize: '0.72rem', background: 'rgba(212, 175, 55, 0.25)', color: 'var(--gold-400)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                            ★ FEATURED
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = data.events.filter((item) => item.id !== ev.id);
+                          saveSection('events', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                        title="Delete Event"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Event Title</label>
+                        <input
+                          type="text"
+                          value={ev.name}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].name = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Date</label>
+                        <input
+                          type="text"
+                          value={ev.date}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].date = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Start Time</label>
+                        <input
+                          type="text"
+                          value={ev.startTime}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].startTime = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>End Time</label>
+                        <input
+                          type="text"
+                          value={ev.endTime}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].endTime = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Category</label>
+                        <select
+                          value={ev.category}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].category = e.target.value as any;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        >
+                          <option value="Cultural Program">Cultural Program</option>
+                          <option value="Bhajan">Bhajan</option>
+                          <option value="Kids Activities">Kids Activities</option>
+                          <option value="Dance">Dance</option>
+                          <option value="Music">Music</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Image Path / URL</label>
+                        <input
+                          type="text"
+                          value={ev.image || ''}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].image = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
+                      <textarea
+                        rows={2}
+                        value={ev.description}
+                        onChange={(e) => {
+                          const updated = [...data.events];
+                          updated[index].description = e.target.value;
+                          setData({ ...data, events: updated });
+                        }}
+                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem', resize: 'vertical' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: 'var(--gold-300)', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={ev.isFeatured}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].isFeatured = e.target.checked;
+                            setData({ ...data, events: updated });
+                          }}
+                        />
+                        <span>Feature on Homepage Hero & Top Cards</span>
+                      </label>
+
+                      <button
+                        onClick={() => saveSection('events', data.events)}
+                        className="btn-gold"
+                        style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+                      >
+                        <Save size={13} />
+                        <span>Save Event</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: '10px' }}>
+                  <button
+                    onClick={() => saveSection('events', data.events)}
+                    disabled={savingSection === 'events'}
+                    className="btn-gold"
+                    style={{ padding: '10px 24px', fontSize: '0.92rem' }}
+                  >
+                    <Save size={16} />
+                    <span>{savingSection === 'events' ? 'Saving Events...' : 'Save All Event Changes'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB: ANNOUNCEMENTS */}
           {activeTab === 'announcements' && (
             <div>
@@ -1084,40 +1289,108 @@ export default function AdminDashboardClient({ initialData }: Props) {
           {/* TAB: VOLUNTEERS */}
           {activeTab === 'volunteers' && (
             <div>
-              <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '8px' }}>
-                Volunteer Registrations
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '20px' }}>
-                Residents who signed up for festival seva categories.
-              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Volunteer Registrations & Seva Management
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    Residents signed up for festival seva. Update status, contact details, or add walk-in volunteers.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newVol: Volunteer = {
+                      id: `vol-${Date.now()}`,
+                      name: 'Walk-in Volunteer',
+                      flatNo: 'Tower B - 204',
+                      phone: '+91 98000 00000',
+                      category: 'Pooja',
+                      notes: 'Registered at stage desk',
+                      createdAt: new Date().toISOString(),
+                      status: 'confirmed',
+                    };
+                    const updated = [newVol, ...data.volunteers];
+                    saveSection('volunteers', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Volunteer</span>
+                </button>
+              </div>
 
-              <div style={{ overflowX: 'auto' }}>
+              <div style={{ overflowX: 'auto', background: 'rgba(28, 3, 6, 0.85)', borderRadius: '12px', border: '1px solid var(--border-gold)' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                   <thead>
-                    <tr style={{ background: 'rgba(42, 8, 13, 0.8)', borderBottom: '1.5px solid var(--gold-500)', textAlign: 'left' }}>
-                      <th style={{ padding: '12px', color: 'var(--gold-400)' }}>Name</th>
-                      <th style={{ padding: '12px', color: 'var(--gold-400)' }}>Flat</th>
-                      <th style={{ padding: '12px', color: 'var(--gold-400)' }}>Phone</th>
-                      <th style={{ padding: '12px', color: 'var(--gold-400)' }}>Seva Category</th>
-                      <th style={{ padding: '12px', color: 'var(--gold-400)' }}>Notes</th>
+                    <tr style={{ background: 'rgba(42, 8, 13, 0.95)', borderBottom: '1.5px solid var(--gold-500)', textAlign: 'left' }}>
+                      <th style={{ padding: '14px', color: 'var(--gold-400)' }}>Devotee Name</th>
+                      <th style={{ padding: '14px', color: 'var(--gold-400)' }}>Flat / Tower</th>
+                      <th style={{ padding: '14px', color: 'var(--gold-400)' }}>Contact Phone</th>
+                      <th style={{ padding: '14px', color: 'var(--gold-400)' }}>Seva Wing</th>
+                      <th style={{ padding: '14px', color: 'var(--gold-400)' }}>Notes</th>
+                      <th style={{ padding: '14px', color: 'var(--gold-400)' }}>Status</th>
+                      <th style={{ padding: '14px', color: 'var(--gold-400)', textAlign: 'center' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.volunteers.map((v) => (
+                    {data.volunteers.map((v, index) => (
                       <tr key={v.id} style={{ borderBottom: '1px solid rgba(212, 175, 55, 0.15)' }}>
-                        <td style={{ padding: '12px', fontWeight: 600, color: 'var(--ivory)' }}>{v.name}</td>
-                        <td style={{ padding: '12px' }}>{v.flatNo}</td>
-                        <td style={{ padding: '12px' }}>
-                          <a href={`tel:${v.phone}`} style={{ color: 'var(--gold-300)', textDecoration: 'none' }}>
+                        <td style={{ padding: '14px', fontWeight: 600, color: 'var(--ivory)' }}>{v.name}</td>
+                        <td style={{ padding: '14px', color: 'var(--cream)' }}>{v.flatNo}</td>
+                        <td style={{ padding: '14px' }}>
+                          <a href={`tel:${v.phone}`} style={{ color: 'var(--gold-300)', textDecoration: 'none', fontWeight: 600 }}>
                             {v.phone}
                           </a>
                         </td>
-                        <td style={{ padding: '12px' }}>
-                          <span style={{ background: 'rgba(212, 175, 55, 0.2)', padding: '2px 8px', borderRadius: '4px', color: 'var(--gold-300)' }}>
+                        <td style={{ padding: '14px' }}>
+                          <span style={{ background: 'rgba(212, 175, 55, 0.2)', padding: '3px 10px', borderRadius: '4px', color: 'var(--gold-300)', fontWeight: 600 }}>
                             {v.category}
                           </span>
                         </td>
-                        <td style={{ padding: '12px', color: 'var(--text-muted)', fontSize: '0.82rem' }}>{v.notes || '-'}</td>
+                        <td style={{ padding: '14px', color: 'var(--text-muted)', fontSize: '0.82rem', maxWidth: '200px' }}>{v.notes || '-'}</td>
+                        <td style={{ padding: '14px' }}>
+                          <select
+                            value={v.status || 'registered'}
+                            onChange={(e) => {
+                              const updated = [...data.volunteers];
+                              updated[index].status = e.target.value as any;
+                              saveSection('volunteers', updated);
+                            }}
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              background:
+                                v.status === 'confirmed'
+                                  ? 'rgba(46, 125, 50, 0.4)'
+                                  : v.status === 'contacted'
+                                  ? 'rgba(230, 81, 0, 0.4)'
+                                  : 'rgba(212, 175, 55, 0.2)',
+                              border: '1px solid var(--border-gold)',
+                              color: '#fff',
+                              fontSize: '0.8rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <option value="registered">Registered</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="confirmed">Confirmed</option>
+                          </select>
+                        </td>
+                        <td style={{ padding: '14px', textAlign: 'center' }}>
+                          <button
+                            onClick={() => {
+                              const updated = data.volunteers.filter((item) => item.id !== v.id);
+                              saveSection('volunteers', updated);
+                            }}
+                            style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer', padding: '4px' }}
+                            title="Remove Volunteer"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -1384,6 +1657,717 @@ export default function AdminDashboardClient({ initialData }: Props) {
             </div>
           )}
 
+          {/* TAB: COMPETITIONS */}
+          {activeTab === 'competitions' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Competitions & Talent Utsav
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    Art, rangoli, singing, dance, and cultural competitions for Pearl community residents.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newComp: Competition = {
+                      id: `cmp-${Date.now()}`,
+                      name: 'Bal Ganesha Art Contest',
+                      date: '16 September 2026',
+                      time: '04:30 PM',
+                      category: 'Art',
+                      description: 'Drawing and painting competition celebrating Lord Ganesha. Paper provided at Stage.',
+                      registrationInfo: 'Open to all children ages 5-15. Free registration at the seva desk.',
+                      status: 'upcoming',
+                    };
+                    const updated = [...data.competitions, newComp];
+                    saveSection('competitions', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Competition</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {data.competitions.map((c, index) => (
+                  <div key={c.id} className="royal-card" style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h4 className="font-royal" style={{ fontSize: '1.15rem', color: 'var(--ivory)' }}>
+                          {c.name}
+                        </h4>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            background:
+                              c.status === 'completed'
+                                ? 'rgba(76, 175, 80, 0.25)'
+                                : c.status === 'ongoing'
+                                ? 'rgba(255, 152, 0, 0.25)'
+                                : 'rgba(212, 175, 55, 0.2)',
+                            color:
+                              c.status === 'completed'
+                                ? '#81c784'
+                                : c.status === 'ongoing'
+                                ? '#ffb74d'
+                                : 'var(--gold-400)',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {c.status}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = data.competitions.filter((item) => item.id !== c.id);
+                          saveSection('competitions', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                        title="Delete Competition"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Name</label>
+                        <input
+                          type="text"
+                          value={c.name}
+                          onChange={(e) => {
+                            const updated = [...data.competitions];
+                            updated[index].name = e.target.value;
+                            setData({ ...data, competitions: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Date</label>
+                        <input
+                          type="text"
+                          value={c.date}
+                          onChange={(e) => {
+                            const updated = [...data.competitions];
+                            updated[index].date = e.target.value;
+                            setData({ ...data, competitions: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Time</label>
+                        <input
+                          type="text"
+                          value={c.time}
+                          onChange={(e) => {
+                            const updated = [...data.competitions];
+                            updated[index].time = e.target.value;
+                            setData({ ...data, competitions: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Category</label>
+                        <input
+                          type="text"
+                          value={c.category}
+                          onChange={(e) => {
+                            const updated = [...data.competitions];
+                            updated[index].category = e.target.value;
+                            setData({ ...data, competitions: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Status</label>
+                        <select
+                          value={c.status}
+                          onChange={(e) => {
+                            const updated = [...data.competitions];
+                            updated[index].status = e.target.value as any;
+                            setData({ ...data, competitions: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        >
+                          <option value="upcoming">Upcoming</option>
+                          <option value="ongoing">Ongoing</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Winners (if declared)</label>
+                        <input
+                          type="text"
+                          value={c.winners || ''}
+                          placeholder="e.g. 1st: Ananya (T-A), 2nd: Rohan (T-B)"
+                          onChange={(e) => {
+                            const updated = [...data.competitions];
+                            updated[index].winners = e.target.value;
+                            setData({ ...data, competitions: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
+                      <textarea
+                        rows={2}
+                        value={c.description}
+                        onChange={(e) => {
+                          const updated = [...data.competitions];
+                          updated[index].description = e.target.value;
+                          setData({ ...data, competitions: updated });
+                        }}
+                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem', resize: 'vertical' }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Registration Info</label>
+                      <input
+                        type="text"
+                        value={c.registrationInfo}
+                        onChange={(e) => {
+                          const updated = [...data.competitions];
+                          updated[index].registrationInfo = e.target.value;
+                          setData({ ...data, competitions: updated });
+                        }}
+                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => saveSection('competitions', data.competitions)}
+                      className="btn-gold"
+                      style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+                    >
+                      <Save size={13} />
+                      <span>Save Competition</span>
+                    </button>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: '10px' }}>
+                  <button
+                    onClick={() => saveSection('competitions', data.competitions)}
+                    disabled={savingSection === 'competitions'}
+                    className="btn-gold"
+                    style={{ padding: '10px 24px', fontSize: '0.92rem' }}
+                  >
+                    <Save size={16} />
+                    <span>{savingSection === 'competitions' ? 'Saving Competitions...' : 'Save All Competitions'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: APARTMENT MAP */}
+          {activeTab === 'map' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Campus & Apartment Map Markers
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    Configure the interactive pins displayed on the society festival layout.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newMarker: MapMarker = {
+                      id: `map-${Date.now()}`,
+                      title: 'New Festival Location',
+                      category: 'stage',
+                      description: 'Festival point near the Stage area.',
+                      x: 50,
+                      y: 50,
+                      icon: 'map-pin',
+                    };
+                    const updated = [...data.mapMarkers, newMarker];
+                    saveSection('mapMarkers', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Map Marker</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {data.mapMarkers.map((m, index) => (
+                  <div key={m.id} className="royal-card" style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>📍</span>
+                        <h4 className="font-royal" style={{ fontSize: '1.15rem', color: 'var(--ivory)' }}>
+                          {m.title}
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = data.mapMarkers.filter((item) => item.id !== m.id);
+                          saveSection('mapMarkers', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                        title="Delete Marker"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Title</label>
+                        <input
+                          type="text"
+                          value={m.title}
+                          onChange={(e) => {
+                            const updated = [...data.mapMarkers];
+                            updated[index].title = e.target.value;
+                            setData({ ...data, mapMarkers: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Category</label>
+                        <select
+                          value={m.category}
+                          onChange={(e) => {
+                            const updated = [...data.mapMarkers];
+                            updated[index].category = e.target.value as any;
+                            setData({ ...data, mapMarkers: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        >
+                          <option value="stage">Stage (Ganpati Mandap)</option>
+                          <option value="gate">Main Gate</option>
+                          <option value="parking">Parking</option>
+                          <option value="photo">Photo Area</option>
+                          <option value="prasadam">Prasadam Counter</option>
+                          <option value="footwear">Footwear Stand</option>
+                          <option value="washroom">Washroom</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>X Position (% 0-100)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={m.x}
+                          onChange={(e) => {
+                            const updated = [...data.mapMarkers];
+                            updated[index].x = parseFloat(e.target.value) || 0;
+                            setData({ ...data, mapMarkers: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Y Position (% 0-100)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={m.y}
+                          onChange={(e) => {
+                            const updated = [...data.mapMarkers];
+                            updated[index].y = parseFloat(e.target.value) || 0;
+                            setData({ ...data, mapMarkers: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
+                      <textarea
+                        rows={2}
+                        value={m.description}
+                        onChange={(e) => {
+                          const updated = [...data.mapMarkers];
+                          updated[index].description = e.target.value;
+                          setData({ ...data, mapMarkers: updated });
+                        }}
+                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem', resize: 'vertical' }}
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => saveSection('mapMarkers', data.mapMarkers)}
+                      className="btn-gold"
+                      style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+                    >
+                      <Save size={13} />
+                      <span>Save Marker</span>
+                    </button>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: '10px' }}>
+                  <button
+                    onClick={() => saveSection('mapMarkers', data.mapMarkers)}
+                    disabled={savingSection === 'mapMarkers'}
+                    className="btn-gold"
+                    style={{ padding: '10px 24px', fontSize: '0.92rem' }}
+                  >
+                    <Save size={16} />
+                    <span>{savingSection === 'mapMarkers' ? 'Saving Markers...' : 'Save All Markers'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: CONTACTS & DONATIONS */}
+          {activeTab === 'contacts' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Committee Contacts & Donations Notice
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    Emergency contacts, seva leads, and the strictly compliant offline donation protocol.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newContact: ContactPerson = {
+                      id: `cnt-${Date.now()}`,
+                      role: 'Committee Volunteer Coordinator',
+                      name: 'Volunteer Desk',
+                      phone: '+91 98490 00000',
+                      availableHours: '08:00 AM - 10:00 PM',
+                    };
+                    const updated = [...data.contacts, newContact];
+                    saveSection('contacts', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Committee Contact</span>
+                </button>
+              </div>
+
+              {/* Committee Contacts List */}
+              <h3 className="font-royal" style={{ fontSize: '1.2rem', color: 'var(--gold-400)', marginBottom: '14px' }}>
+                Festival Committee & Helpline Contacts
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '32px' }}>
+                {data.contacts.map((c, index) => (
+                  <div key={c.id} className="royal-card" style={{ padding: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <h4 className="font-royal" style={{ fontSize: '1.1rem', color: 'var(--ivory)' }}>
+                        {c.name} ({c.role})
+                      </h4>
+                      <button
+                        onClick={() => {
+                          const updated = data.contacts.filter((item) => item.id !== c.id);
+                          saveSection('contacts', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                        title="Delete Contact"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.74rem', color: 'var(--gold-400)' }}>Name</label>
+                        <input
+                          type="text"
+                          value={c.name}
+                          onChange={(e) => {
+                            const updated = [...data.contacts];
+                            updated[index].name = e.target.value;
+                            setData({ ...data, contacts: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.74rem', color: 'var(--gold-400)' }}>Role</label>
+                        <input
+                          type="text"
+                          value={c.role}
+                          onChange={(e) => {
+                            const updated = [...data.contacts];
+                            updated[index].role = e.target.value;
+                            setData({ ...data, contacts: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.74rem', color: 'var(--gold-400)' }}>Phone</label>
+                        <input
+                          type="text"
+                          value={c.phone}
+                          onChange={(e) => {
+                            const updated = [...data.contacts];
+                            updated[index].phone = e.target.value;
+                            setData({ ...data, contacts: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.74rem', color: 'var(--gold-400)' }}>Available Hours</label>
+                        <input
+                          type="text"
+                          value={c.availableHours || ''}
+                          onChange={(e) => {
+                            const updated = [...data.contacts];
+                            updated[index].availableHours = e.target.value;
+                            setData({ ...data, contacts: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.86rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => saveSection('contacts', data.contacts)}
+                      className="btn-gold"
+                      style={{ padding: '5px 12px', fontSize: '0.78rem' }}
+                    >
+                      <Save size={12} />
+                      <span>Save Contact</span>
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  onClick={() => saveSection('contacts', data.contacts)}
+                  disabled={savingSection === 'contacts'}
+                  className="btn-gold"
+                  style={{ padding: '10px 24px', fontSize: '0.92rem', alignSelf: 'flex-start' }}
+                >
+                  <Save size={16} />
+                  <span>Save All Contacts</span>
+                </button>
+              </div>
+
+              {/* Donations Notice Section */}
+              <h3 className="font-royal" style={{ fontSize: '1.2rem', color: 'var(--gold-400)', marginBottom: '14px' }}>
+                Donations Notice Guidelines (Policy Compliant)
+              </h3>
+              <div className="royal-card" style={{ padding: '22px' }}>
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                    Heading
+                  </label>
+                  <input
+                    type="text"
+                    value={data.donations.heading}
+                    onChange={(e) => {
+                      const updated = { ...data.donations, heading: e.target.value };
+                      setData({ ...data, donations: updated });
+                    }}
+                    style={{ width: '100%', padding: '10px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                    Notice Message (Note: Strictly no direct UPI/QR/bank info)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={data.donations.notice}
+                    onChange={(e) => {
+                      const updated = { ...data.donations, notice: e.target.value };
+                      setData({ ...data, donations: updated });
+                    }}
+                    style={{ width: '100%', padding: '10px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff', resize: 'vertical' }}
+                  />
+                </div>
+
+                <button
+                  onClick={() => saveSection('donations', data.donations)}
+                  disabled={savingSection === 'donations'}
+                  className="btn-gold"
+                  style={{ padding: '10px 22px' }}
+                >
+                  <Save size={15} />
+                  <span>Save Donations Notice</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: MEMORIES */}
+          {activeTab === 'memories' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Festival Legacy & Memories
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    Archival retrospectives, past festival themes, and cherished moments of Pearl Cha Chintamani.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newYear = (data.memories[0]?.year || 2025) - 1;
+                    const newMemory: MemoryItem = {
+                      id: `mem-${newYear}`,
+                      year: newYear,
+                      title: `Pearl Cha Chintamani ${newYear}`,
+                      description: `Joyous celebrations, daily maha aartis, and grand visarjan in ${newYear}.`,
+                      coverImage: '/images/maha-aarti.jpg',
+                      highlights: ['Grand Floral Stage Mandap', 'Daily 108 Diya Maha Aarti', 'Visarjan Shobhayatra with Dhol Tasha'],
+                    };
+                    const updated = [newMemory, ...data.memories];
+                    saveSection('memories', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Memory Year</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                {data.memories.map((m, index) => (
+                  <div key={m.id} className="royal-card" style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>🏛️</span>
+                        <h4 className="font-royal" style={{ fontSize: '1.2rem', color: 'var(--ivory)' }}>
+                          Utsav {m.year}: {m.title}
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = data.memories.filter((item) => item.id !== m.id);
+                          saveSection('memories', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                        title="Delete Year Memory"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Year</label>
+                        <input
+                          type="number"
+                          value={m.year}
+                          onChange={(e) => {
+                            const updated = [...data.memories];
+                            updated[index].year = parseInt(e.target.value) || m.year;
+                            setData({ ...data, memories: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Title</label>
+                        <input
+                          type="text"
+                          value={m.title}
+                          onChange={(e) => {
+                            const updated = [...data.memories];
+                            updated[index].title = e.target.value;
+                            setData({ ...data, memories: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Cover Image</label>
+                        <input
+                          type="text"
+                          value={m.coverImage || ''}
+                          onChange={(e) => {
+                            const updated = [...data.memories];
+                            updated[index].coverImage = e.target.value;
+                            setData({ ...data, memories: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
+                      <textarea
+                        rows={2}
+                        value={m.description}
+                        onChange={(e) => {
+                          const updated = [...data.memories];
+                          updated[index].description = e.target.value;
+                          setData({ ...data, memories: updated });
+                        }}
+                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem', resize: 'vertical' }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Highlights (one per line)</label>
+                      <textarea
+                        rows={3}
+                        value={(m.highlights || []).join('\n')}
+                        onChange={(e) => {
+                          const updated = [...data.memories];
+                          updated[index].highlights = e.target.value.split('\n').filter(Boolean);
+                          setData({ ...data, memories: updated });
+                        }}
+                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem', resize: 'vertical' }}
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => saveSection('memories', data.memories)}
+                      className="btn-gold"
+                      style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+                    >
+                      <Save size={13} />
+                      <span>Save Memory Year</span>
+                    </button>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: '10px' }}>
+                  <button
+                    onClick={() => saveSection('memories', data.memories)}
+                    disabled={savingSection === 'memories'}
+                    className="btn-gold"
+                    style={{ padding: '10px 24px', fontSize: '0.92rem' }}
+                  >
+                    <Save size={16} />
+                    <span>{savingSection === 'memories' ? 'Saving Memories...' : 'Save All Memories'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB: SITE SETTINGS */}
           {activeTab === 'settings' && (
             <div>
@@ -1467,34 +2451,6 @@ export default function AdminDashboardClient({ initialData }: Props) {
           )}
         </main>
       </div>
-
-      <style jsx global>{`
-        @media (max-width: 860px) {
-          .admin-sidebar {
-            position: fixed;
-            top: 65px;
-            bottom: 0;
-            left: -260px;
-            z-index: 55;
-            transition: left 0.3s ease;
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
-          }
-          .admin-sidebar.mobile-open {
-            left: 0;
-          }
-          .admin-mobile-toggle {
-            display: flex !important;
-          }
-          .hide-on-mobile {
-            display: none !important;
-          }
-        }
-        @media (min-width: 861px) {
-          .admin-mobile-toggle {
-            display: none !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

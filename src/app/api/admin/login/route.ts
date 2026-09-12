@@ -17,8 +17,11 @@ export async function POST(request: Request) {
 
     const token = await createAdminToken();
 
+    const isSecure = process.env.NODE_ENV === 'production' && !request.url.includes('localhost') && !request.url.includes('127.0.0.1');
+
     const response = NextResponse.json({
       success: true,
+      token,
       message: 'Admin authenticated successfully',
     });
 
@@ -26,7 +29,7 @@ export async function POST(request: Request) {
       name: COOKIE_NAME,
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
