@@ -1,68 +1,84 @@
 import { NextResponse } from 'next/server';
 import { getDatabase, saveDatabase } from '@/lib/db';
 import { isAdminAuthenticated } from '@/lib/auth';
+import { isSameOrigin } from '@/lib/csrf';
+import { sanitizeObject } from '@/lib/security';
 import { FullDatabaseState } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
+const VALID_SECTIONS: (keyof FullDatabaseState)[] = [
+  'poojaTimings',
+  'events',
+  'announcements',
+  'countdowns',
+  'visarjan',
+  'gallery',
+  'volunteers',
+  'prasadam',
+  'competitions',
+  'mapMarkers',
+  'contacts',
+  'donations',
+  'blessings',
+  'memories',
+  'siteSettings',
+];
+
 export async function POST(request: Request) {
+  // 1. Authentication Check
   const isAuth = await isAdminAuthenticated(request);
   if (!isAuth) {
     return NextResponse.json({ error: 'Unauthorized access to admin update' }, { status: 401 });
   }
 
+  // 2. CSRF / Same-Origin Check
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: 'Cross-site request forgery detected' }, { status: 403 });
+  }
+
   try {
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json({ error: 'Content-Type must be application/json' }, { status: 400 });
+    }
+
     const body = await request.json();
     const { section, data } = body;
 
+    if (!section || data === undefined) {
+      return NextResponse.json({ error: 'Section and data are required' }, { status: 400 });
+    }
+
+    // 3. Section Allowlist Validation
+    if (!VALID_SECTIONS.includes(section as keyof FullDatabaseState)) {
+      return NextResponse.json({ error: `Invalid section: ${section}` }, { status: 400 });
+    }
+
+    // 4. Sanitize against prototype pollution
+    const cleanData = sanitizeObject(data);
+
     const db = getDatabase();
 
-    if (section && data !== undefined) {
-      // Validate section
-      const validSections: (keyof FullDatabaseState)[] = [
-        'poojaTimings',
-        'events',
-        'announcements',
-        'countdowns',
-        'visarjan',
-        'gallery',
-        'volunteers',
-        'prasadam',
-        'competitions',
-        'mapMarkers',
-        'contacts',
-        'donations',
-        'blessings',
-        'memories',
-        'siteSettings',
-      ];
-
-      if (!validSections.includes(section)) {
-        return NextResponse.json({ error: `Invalid section: ${section}` }, { status: 400 });
-      }
-
-      // Enforce user rule: location must be "Stage" and NEVER "Club House"
-      if (section === 'poojaTimings' && Array.isArray(data)) {
-        data.forEach((p: any) => {
-          if (p.location && p.location.toLowerCase().includes('club')) {
-            p.location = 'Stage';
-          }
-        });
-      }
-
-      (db as any)[section] = data;
-      saveDatabase(db);
-
-      return NextResponse.json({
-        success: true,
-        message: `Section ${section} updated successfully`,
-        data: db[section as keyof FullDatabaseState],
+    // 5. Enforce user rule: location must be "Stage" and NEVER "Club House"
+    if (section === 'poojaTimings' && Array.isArray(cleanData)) {
+      cleanData.forEach((p: any) => {
+        if (p && typeof p === 'object' && p.location && typeof p.location === 'string' && p.location.toLowerCase().includes('club')) {
+          p.location = 'Stage';
+        }
       });
     }
 
-    return NextResponse.json({ error: 'Section and data required' }, { status: 400 });
+    (db as any)[section] = cleanData;
+    saveDatabase(db);
+
+    return NextResponse.json({
+      success: true,
+      message: `Section ${section} updated successfully`,
+      data: db[section as keyof FullDatabaseState],
+    });
   } catch (error) {
     console.error('Error in admin update:', error);
-    return NextResponse.json({ error: 'Failed to update data' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update data safely' }, { status: 500 });
   }
 }

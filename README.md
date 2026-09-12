@@ -109,11 +109,11 @@ Built with the **"Royal Chintamani"** visual identity: combining Indian mytholog
    ```bash
    cp .env.example .env.local
    ```
-   Default admin credentials in `.env.local`:
+   Configure your admin password and secrets in `.env.local`:
    ```env
-   ADMIN_PASSWORD=pearl_bappa_2026
+   ADMIN_PASSWORD=your_secure_admin_password_here
    ADMIN_EMAIL=admin@pearlchachintamani.com
-   ADMIN_JWT_SECRET=pearl_cha_chintamani_jwt_secret_key_2026_super_secure
+   ADMIN_JWT_SECRET=your_random_32_character_jwt_secret_here
    ```
 
 4. **Run Development Server**:
