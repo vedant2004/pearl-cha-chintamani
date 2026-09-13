@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MapMarker } from '@/lib/types';
-import { MapPin, Compass, Info, X, Navigation } from 'lucide-react';
+import { Navigation } from 'lucide-react';
 
 interface ApartmentMapProps {
   markers: MapMarker[];
@@ -35,18 +35,12 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
     switch (category) {
       case 'stage':
         return '🐘';
-      case 'gate':
-        return '🚪';
+      case 'seating':
+        return '🪑';
       case 'parking':
         return '🚗';
-      case 'photo':
-        return '📸';
-      case 'washroom':
-        return '🚻';
-      case 'prasadam':
-        return '🍽️';
-      case 'footwear':
-        return '👟';
+      case 'gate':
+        return '🚪';
       default:
         return '📍';
     }
@@ -70,7 +64,7 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
           </h2>
           <p className="section-subtitle">
             Interactive schematic festival layout of Pearl Apartments for Ganesh Utsav 2026.
-            Locate the Stage Mandap, Seating & Prasad Pavilion, Main Gate, and Seva points.
+            Locate the Stage, Devotee Seating, Festival Parking, and Main Gate.
           </p>
         </div>
 
@@ -86,19 +80,16 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
         >
           {[
             { id: 'all', label: 'All Locations' },
-            { id: 'stage', label: '🐘 Stage Mandap' },
+            { id: 'stage', label: '🐘 Stage' },
+            { id: 'seating', label: '🪑 Seating' },
+            { id: 'parking', label: '🚗 Parking' },
             { id: 'gate', label: '🚪 Main Gate' },
-            { id: 'parking', label: '🚗 Festival Parking' },
-            { id: 'prasadam', label: '🍽️ Seating & Prasad' },
-            { id: 'footwear', label: '👟 Footwear Stand' },
-            { id: 'photo', label: '📸 Photo Booth' },
-            { id: 'washroom', label: '🚻 Amenities' },
           ].map((cat) => (
             <button
               key={cat.id}
               onClick={() => handleCategoryChange(cat.id)}
               style={{
-                padding: '7px 16px',
+                padding: '7px 18px',
                 borderRadius: '20px',
                 border:
                   filterCategory === cat.id
@@ -170,7 +161,7 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                     />
                   </pattern>
 
-                  {/* Stage Mandap Divine Radiance */}
+                  {/* Stage Divine Radiance */}
                   <radialGradient id="stageRadiance" cx="50%" cy="50%" r="50%">
                     <stop offset="0%" stopColor="#FFA000" stopOpacity="0.45" />
                     <stop offset="60%" stopColor="#D4AF37" stopOpacity="0.2" />
@@ -197,10 +188,10 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                     <stop offset="100%" stopColor="#AA771C" />
                   </linearGradient>
 
-                  {/* Shamiana Canopy Stripe Pattern */}
-                  <pattern id="shamianaStripes" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  {/* Seating Shamiana Pattern */}
+                  <pattern id="seatingPattern" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                     <rect width="8" height="16" fill="#4d121c" />
-                    <rect x="8" width="8" height="16" fill="#661926" />
+                    <rect x="8" width="8" height="16" fill="#5f1624" />
                   </pattern>
 
                   {/* Drop Shadows */}
@@ -238,17 +229,16 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
 
                 {/* Outer Compound Wall Boundary */}
                 <path
-                  d="M 120 180 L 485 50 L 760 170 L 960 290 L 920 520 L 830 630 L 710 655 L 430 515 L 260 415 L 140 425 L 110 320 L 120 180 Z"
+                  d="M 120 180 L 485 50 L 760 170 L 960 290 L 930 480 L 910 550 L 830 630 L 710 655 L 430 515 L 260 415 L 140 425 L 110 320 L 120 180 Z"
                   fill="none"
                   stroke="rgba(212, 175, 55, 0.18)"
                   strokeWidth="1.5"
                   strokeDasharray="6,4"
                 />
 
-                {/* 2. Primary Devotee Walking Arteries (Gate -> Courtyard -> Stage) */}
-                {/* Main Gate Inward Avenue */}
+                {/* 2. Primary Devotee Walking Arteries (Lower-Right Main Gate -> Grounds -> Stage & Seating) */}
                 <path
-                  d="M 485 50 L 485 170 L 515 280 L 610 400 L 720 480"
+                  d="M 940 640 L 880 580 L 820 500 L 710 435 L 590 380"
                   fill="none"
                   stroke="rgba(212, 175, 55, 0.22)"
                   strokeWidth="24"
@@ -256,12 +246,21 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                   strokeLinejoin="round"
                 />
                 <path
-                  d="M 485 50 L 485 170 L 515 280 L 610 400 L 720 480"
+                  d="M 940 640 L 880 580 L 820 500 L 710 435 L 590 380"
                   fill="none"
                   stroke="#FFD700"
                   strokeWidth="2.5"
                   strokeDasharray="8,8"
                   opacity="0.6"
+                />
+                {/* Secondary Pathway connecting to Parking area */}
+                <path
+                  d="M 880 580 L 890 410 L 890 350"
+                  fill="none"
+                  stroke="rgba(212, 175, 55, 0.18)"
+                  strokeWidth="16"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
 
                 {/* 3. PEARL APARTMENTS RESIDENTIAL FOOTPRINT */}
@@ -306,7 +305,6 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                 </text>
 
                 {/* 4. CENTRAL OPEN COURTYARD / ATRIUM */}
-                {/* Large open interior courtyard running parallel through the building center */}
                 <polygon
                   points="380,250 660,410 615,485 335,325"
                   fill="url(#courtyardGrad)"
@@ -336,96 +334,73 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                   CENTRAL OPEN COURTYARD
                 </text>
 
-                {/* 5. MAIN GATE ENTRANCE (North Wall) */}
-                <g
-                  onClick={() => selectMarkerByCategory('gate')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {/* Gate Portico & Road Connection */}
-                  <path d="M 450 30 L 450 85 L 520 85 L 520 30 Z" fill="#24060b" stroke="#AA771C" strokeWidth="2" />
-                  <line x1="485" y1="30" x2="485" y2="85" stroke="#FFD700" strokeWidth="2" strokeDasharray="3,3" />
-
-                  {/* Gate Pillars */}
-                  <rect x="444" y="70" width="12" height="18" rx="2" fill="#D4AF37" stroke="#fff" strokeWidth="1" />
-                  <rect x="514" y="70" width="12" height="18" rx="2" fill="#D4AF37" stroke="#fff" strokeWidth="1" />
-
-                  {/* Gate Label Banner */}
-                  <rect x="445" y="92" width="80" height="20" rx="4" fill="#380911" stroke="#FFD700" strokeWidth="1.5" />
-                  <text x="485" y="106" fill="#FFF0BE" fontSize="10" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
-                    MAIN GATE
-                  </text>
-                </g>
-
-                {/* 6. FESTIVAL PARKING ZONE (Beside Stage on East Perimeter) */}
+                {/* 5. FESTIVAL PARKING ZONE (Beside / Around Stage Area) */}
                 <g
                   onClick={() => selectMarkerByCategory('parking')}
                   style={{ cursor: 'pointer' }}
                 >
                   <rect
-                    x="830"
-                    y="350"
-                    width="105"
-                    height="75"
+                    x="840"
+                    y="310"
+                    width="110"
+                    height="80"
                     rx="8"
                     fill="rgba(35, 6, 11, 0.9)"
-                    stroke="rgba(212, 175, 55, 0.45)"
+                    stroke="rgba(212, 175, 55, 0.5)"
                     strokeWidth="1.5"
                     strokeDasharray="4,3"
                   />
                   {/* Parking Bay Dividers */}
-                  <line x1="850" y1="350" x2="850" y2="400" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,2" />
-                  <line x1="875" y1="350" x2="875" y2="400" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,2" />
-                  <line x1="900" y1="350" x2="900" y2="400" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,2" />
-                  <text x="882" y="415" fill="#e8d8b5" fontSize="10" fontWeight="700" fontFamily="sans-serif" textAnchor="middle">
-                    PARKING AREA
+                  <line x1="865" y1="310" x2="865" y2="360" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,2" />
+                  <line x1="895" y1="310" x2="895" y2="360" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,2" />
+                  <line x1="925" y1="310" x2="925" y2="360" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3,2" />
+                  <text x="895" y="375" fill="#FFD700" fontSize="11" fontWeight="700" fontFamily="sans-serif" textAnchor="middle">
+                    PARKING
                   </text>
                 </g>
 
-                {/* 7. SEATING & PRASAD PAVILION (Adjacent to Stage) */}
-                {/* Drawn as 'Seating + PRASAD' in user's diagram */}
+                {/* 6. DEVOTEE SEATING AREA (Adjacent to Stage) */}
+                {/* Drawn as 'Seating' in user's diagram */}
                 <g
-                  onClick={() => selectMarkerByCategory('prasadam')}
+                  onClick={() => selectMarkerByCategory('seating')}
                   style={{ cursor: 'pointer' }}
                 >
                   <rect
-                    x="615"
-                    y="400"
-                    width="110"
+                    x="590"
+                    y="370"
+                    width="115"
                     height="85"
                     rx="10"
-                    fill="url(#shamianaStripes)"
+                    fill="url(#seatingPattern)"
                     stroke="#FFD700"
                     strokeWidth="2"
                   />
-                  {/* Canopy Pillars */}
-                  <circle cx="625" cy="410" r="3.5" fill="#FFD700" />
-                  <circle cx="715" cy="410" r="3.5" fill="#FFD700" />
-                  <circle cx="625" cy="475" r="3.5" fill="#FFD700" />
-                  <circle cx="715" cy="475" r="3.5" fill="#FFD700" />
+                  {/* Canopy Corner Pillars */}
+                  <circle cx="600" cy="380" r="3.5" fill="#FFD700" />
+                  <circle cx="695" cy="380" r="3.5" fill="#FFD700" />
+                  <circle cx="600" cy="445" r="3.5" fill="#FFD700" />
+                  <circle cx="695" cy="445" r="3.5" fill="#FFD700" />
 
-                  {/* Seating & Prasad Label */}
-                  <rect x="622" y="432" width="96" height="24" rx="4" fill="rgba(24, 3, 7, 0.95)" stroke="rgba(212, 175, 55, 0.6)" strokeWidth="1" />
-                  <text x="670" y="445" fill="#FFD700" fontSize="10" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
-                    SEATING AREA
-                  </text>
-                  <text x="670" y="455" fill="#FFF0BE" fontSize="8" fontWeight="600" fontFamily="sans-serif" textAnchor="middle">
-                    & Maha Prasad Desk
+                  {/* Seating Label */}
+                  <rect x="605" y="400" width="85" height="24" rx="4" fill="rgba(24, 3, 7, 0.95)" stroke="rgba(212, 175, 55, 0.6)" strokeWidth="1" />
+                  <text x="647.5" y="416" fill="#FFD700" fontSize="11" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
+                    SEATING
                   </text>
                 </g>
 
-                {/* 8. MAIN STAGE (GANPATI MANDAP) */}
+                {/* 7. MAIN STAGE (GANPATI MANDAP) */}
                 {/* Drawn as rounded rectangle 'STAGE' on the lower-right in user's diagram */}
                 <g
                   onClick={() => selectMarkerByCategory('stage')}
                   style={{ cursor: 'pointer' }}
                 >
                   {/* Divine Golden Aura */}
-                  <circle cx="797" cy="512" r="90" fill="url(#stageRadiance)" />
+                  <circle cx="790" cy="475" r="90" fill="url(#stageRadiance)" />
 
                   {/* Mandap Raised Platform Footprint */}
                   <rect
-                    x="740"
-                    y="470"
+                    x="735"
+                    y="430"
                     width="115"
                     height="85"
                     rx="20"
@@ -435,10 +410,10 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                     filter="url(#mandapShadow)"
                   />
 
-                  {/* Inner Floral Sanctum Border */}
+                  {/* Inner Sanctum Border */}
                   <rect
-                    x="748"
-                    y="478"
+                    x="743"
+                    y="438"
                     width="99"
                     height="69"
                     rx="14"
@@ -449,17 +424,43 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                   />
 
                   {/* Sanctum Altar Platform */}
-                  <circle cx="797" cy="505" r="16" fill="#8c1b2c" stroke="#FFD700" strokeWidth="2" />
-                  <text x="797" y="511" fill="#FFF0BE" fontSize="14" textAnchor="middle">
+                  <circle cx="790" cy="465" r="16" fill="#8c1b2c" stroke="#FFD700" strokeWidth="2" />
+                  <text x="790" y="471" fill="#FFF0BE" fontSize="14" textAnchor="middle">
                     🐘
                   </text>
 
                   {/* Stage Mandap Title Text */}
-                  <text x="797" y="534" fill="#FFD700" fontSize="11" fontWeight="bold" fontFamily="serif" textAnchor="middle">
-                    STAGE MANDAP
+                  <text x="790" y="495" fill="#FFD700" fontSize="11" fontWeight="bold" fontFamily="serif" textAnchor="middle">
+                    STAGE
                   </text>
-                  <text x="797" y="544" fill="#FFF0BE" fontSize="8" fontWeight="600" fontFamily="sans-serif" textAnchor="middle">
+                  <text x="790" y="505" fill="#FFF0BE" fontSize="8" fontWeight="600" fontFamily="sans-serif" textAnchor="middle">
                     Pearl Cha Chintamani
+                  </text>
+                </g>
+
+                {/* 8. MAIN GATE (On the Right / Lower-Right Perimeter) */}
+                {/* Moved from north perimeter to the right/lower-right per resident drawing */}
+                <g
+                  onClick={() => selectMarkerByCategory('gate')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {/* Gate Portico & Road Connection */}
+                  <path
+                    d="M 850 560 L 910 600 L 920 620 L 860 580 Z"
+                    fill="#24060b"
+                    stroke="#AA771C"
+                    strokeWidth="2"
+                  />
+                  <line x1="880" y1="580" x2="940" y2="640" stroke="#FFD700" strokeWidth="2.5" strokeDasharray="4,4" />
+
+                  {/* Gate Entrance Pillars */}
+                  <rect x="850" y="565" width="12" height="18" rx="2" fill="#D4AF37" stroke="#fff" strokeWidth="1" transform="rotate(30, 856, 574)" />
+                  <rect x="900" y="595" width="12" height="18" rx="2" fill="#D4AF37" stroke="#fff" strokeWidth="1" transform="rotate(30, 906, 604)" />
+
+                  {/* Gate Label Banner */}
+                  <rect x="840" y="595" width="80" height="22" rx="4" fill="#380911" stroke="#FFD700" strokeWidth="1.5" />
+                  <text x="880" y="610" fill="#FFF0BE" fontSize="10" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">
+                    MAIN GATE
                   </text>
                 </g>
               </svg>
@@ -490,7 +491,7 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
                         : '1.5px solid var(--gold-500)',
                       color: isSelected ? '#1a0306' : '#ffffff',
                       borderRadius: '50px',
-                      padding: isStage ? '8px 16px' : '6px 13px',
+                      padding: isStage ? '8px 16px' : '6px 14px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '7px',
@@ -579,13 +580,10 @@ export default function ApartmentMap({ markers }: ApartmentMapProps) {
               >
                 <Navigation size={15} />
                 <span>
-                  {activeMarker.category === 'stage' && 'Directly visible on the south-east grounds with floral archway. Main aartis at 07:30 PM.'}
-                  {activeMarker.category === 'gate' && 'Main security and vehicular entrance from Mayur Marg. Follow volunteer signs inward.'}
-                  {activeMarker.category === 'prasadam' && 'Connected directly in front of the Stage Mandap. Chairs arranged for elders.'}
-                  {activeMarker.category === 'parking' && 'Located along the east perimeter beside the Stage. Please follow traffic volunteers.'}
-                  {activeMarker.category === 'footwear' && 'Safe tokenized counter located before entering the Seating & Stage zone.'}
-                  {activeMarker.category === 'photo' && 'Family photo zone beside the decorated Stage with royal marigold backdrop.'}
-                  {activeMarker.category === 'washroom' && 'Sanitized campus restrooms and cold drinking water dispensers available.'}
+                  {activeMarker.category === 'stage' && 'Sacred darshan sanctum on the right side of the complex. Evening Maha Aarti at 07:30 PM.'}
+                  {activeMarker.category === 'seating' && 'Covered devotee seating area directly adjacent to the Stage with chair arrangements for elders and families.'}
+                  {activeMarker.category === 'parking' && 'Designated festival parking area located beside and around the Stage area. Follow volunteer directions.'}
+                  {activeMarker.category === 'gate' && 'Main security and campus entrance on the right/lower-right perimeter. Primary entry for all devotees.'}
                 </span>
               </div>
             </div>

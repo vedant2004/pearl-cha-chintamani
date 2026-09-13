@@ -2467,10 +2467,10 @@ export default function AdminDashboardClient({ initialData }: Props) {
                           style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
                         >
                           <option value="stage">Stage (Ganpati Mandap)</option>
-                          <option value="gate">Main Gate</option>
+                          <option value="seating">Seating Area</option>
                           <option value="parking">Parking</option>
+                          <option value="gate">Main Gate</option>
                           <option value="photo">Photo Area</option>
-                          <option value="prasadam">Prasadam Counter</option>
                           <option value="footwear">Footwear Stand</option>
                           <option value="washroom">Washroom</option>
                         </select>

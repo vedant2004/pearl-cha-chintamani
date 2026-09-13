@@ -348,66 +348,39 @@
   "mapMarkers": [
     {
       "id": "map-1",
-      "title": "🐘 Main Stage (Ganpati Mandap)",
+      "title": "🐘 Stage",
       "category": "stage",
-      "description": "The sacred sanctum where Pearl Cha Chintamani is enthroned. Located on the south-east grounds with floral mandap, maha aarti platform, and daily puja rituals.",
+      "description": "The sacred stage where Pearl Cha Chintamani is enthroned. Located on the right/lower-right side of the apartment complex with royal floral mandap and evening aarti platform.",
       "x": 79,
-      "y": 75,
+      "y": 70,
       "icon": "sparkles"
     },
     {
       "id": "map-2",
-      "title": "🚪 Main Security Gate",
-      "category": "gate",
-      "description": "Primary visitor and resident entrance at the northern boundary. Security check, footwear registration, and volunteer welcome counter.",
-      "x": 48.5,
-      "y": 12.5,
-      "icon": "door"
+      "title": "🪑 Seating",
+      "category": "seating",
+      "description": "Covered devotee seating area directly adjacent to the Stage with dedicated chair arrangements for senior citizens and families.",
+      "x": 65,
+      "y": 61,
+      "icon": "chair"
     },
     {
       "id": "map-3",
-      "title": "🚗 Dedicated Festival Parking",
+      "title": "🚗 Parking",
       "category": "parking",
-      "description": "Designated two-wheeler and four-wheeler parking zone beside the Stage area along the eastern perimeter. Follow volunteer signals.",
-      "x": 88,
-      "y": 57,
+      "description": "Designated vehicle parking area located beside and around the Stage area along the eastern grounds. Follow volunteer directions upon arrival.",
+      "x": 89,
+      "y": 51,
       "icon": "car"
     },
     {
       "id": "map-4",
-      "title": "📸 Royal Photo Booth",
-      "category": "photo",
-      "description": "Festive selfie zone with traditional marigold arches, brass lanterns, and royal backdrop for family portraits.",
-      "x": 84,
-      "y": 72,
-      "icon": "camera"
-    },
-    {
-      "id": "map-5",
-      "title": "🍽️ Seating & Prasad Pavilion",
-      "category": "prasadam",
-      "description": "Covered shamiana directly in front of the Stage with dedicated seating for senior citizens and Maha Prasad distribution counter.",
-      "x": 67,
-      "y": 65,
-      "icon": "gift"
-    },
-    {
-      "id": "map-6",
-      "title": "👟 Footwear Counter",
-      "category": "footwear",
-      "description": "Safe, tokenized shoe rack counter located right at the entrance to the Seating and Stage pavilion.",
-      "x": 59,
-      "y": 53,
-      "icon": "archive"
-    },
-    {
-      "id": "map-7",
-      "title": "🚻 Restrooms & Water Dispenser",
-      "category": "washroom",
-      "description": "Sanitized restroom facilities and chilled mineral drinking water stations along the perimeter.",
-      "x": 77,
-      "y": 28,
-      "icon": "droplet"
+      "title": "🚪 Main Gate",
+      "category": "gate",
+      "description": "Main campus entrance gate located on the right/lower-right perimeter. Primary entry point for devotees and visitors attending the festival.",
+      "x": 88,
+      "y": 85,
+      "icon": "door"
     }
   ],
   "contacts": [

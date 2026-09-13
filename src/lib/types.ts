@@ -98,7 +98,7 @@ export interface Competition {
 export interface MapMarker {
   id: string;
   title: string;
-  category: 'stage' | 'gate' | 'parking' | 'photo' | 'washroom' | 'prasadam' | 'footwear';
+  category: 'stage' | 'gate' | 'parking' | 'seating' | 'photo' | 'washroom' | 'prasadam' | 'footwear';
   description: string;
   x: number; // 0 to 100 percentage
   y: number; // 0 to 100 percentage
