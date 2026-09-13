@@ -110,7 +110,6 @@ export default function Footer() {
             { label: 'Announcements', href: '#announcements' },
             { label: 'Gallery', href: '#gallery' },
             { label: 'Map', href: '#map' },
-            { label: 'Prasadam', href: '#prasadam' },
             { label: 'Competitions', href: '#competitions' },
             { label: 'Volunteers', href: '#volunteers' },
             { label: 'Leave Blessings', href: '#blessings' },

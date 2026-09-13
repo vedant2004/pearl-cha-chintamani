@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getDatabase, saveDatabase } from '@/lib/db';
 import { isAdminAuthenticated } from '@/lib/auth';
 import { isSameOrigin } from '@/lib/csrf';
@@ -23,6 +24,8 @@ const VALID_SECTIONS: (keyof FullDatabaseState)[] = [
   'blessings',
   'memories',
   'siteSettings',
+  'pushSubscriptions',
+  'sentNotifications',
 ];
 
 export async function POST(request: Request) {
@@ -60,7 +63,7 @@ export async function POST(request: Request) {
 
     const db = getDatabase();
 
-    // 5. Enforce user rule: location must be "Stage" and NEVER "Club House"
+    // 5. Enforce rule: location must be "Stage"
     if (section === 'poojaTimings' && Array.isArray(cleanData)) {
       cleanData.forEach((p: any) => {
         if (p && typeof p === 'object' && p.location && typeof p.location === 'string' && p.location.toLowerCase().includes('club')) {
@@ -69,8 +72,30 @@ export async function POST(request: Request) {
       });
     }
 
+    // 6. Two-way sync for active countdown and siteSettings
+    if (section === 'countdowns' && Array.isArray(cleanData)) {
+      const activeCd = cleanData.find((c: any) => c && c.isActive);
+      if (activeCd && db.siteSettings) {
+        db.siteSettings.activeCountdownId = activeCd.id;
+      }
+    } else if (section === 'siteSettings' && cleanData && cleanData.activeCountdownId) {
+      if (Array.isArray(db.countdowns)) {
+        db.countdowns.forEach((c) => {
+          c.isActive = c.id === cleanData.activeCountdownId;
+        });
+      }
+    }
+
     (db as any)[section] = cleanData;
     saveDatabase(db);
+
+    // 7. Invalidate Next.js Server Component page caches so updates reflect immediately
+    try {
+      revalidatePath('/');
+      revalidatePath('/admin');
+    } catch {
+      // Ignore if called outside dynamic page render context
+    }
 
     return NextResponse.json({
       success: true,

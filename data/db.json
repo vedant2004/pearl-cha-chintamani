@@ -7,16 +7,17 @@
     "liveAartiUrl": "",
     "announcementTickerEnabled": true,
     "apartmentName": "Pearl Apartments, Kondapur",
-    "city": "Hyderabad, Telangana"
+    "city": "Hyderabad, Telangana",
+    "maintenanceMode": false
   },
   "countdowns": [
     {
       "id": "cd-1",
-      "title": "Ganesh Chaturthi Aagman & Sthapana",
+      "title": "Ganesh Chaturthi & Sthapana Pooja",
       "targetDate": "2026-09-14T09:00:00",
-      "description": "The auspicious arrival of our beloved Pearl Cha Chintamani",
+      "description": "The auspicious sthapana of our beloved Pearl Cha Chintamani at the Stage",
       "isActive": true,
-      "postEventMessage": "Ganpati Bappa has arrived! Sthapana Pooja in progress at the Stage."
+      "postEventMessage": "Ganpati Bappa Morya! Sthapana Pooja in progress at the Stage."
     },
     {
       "id": "cd-2",
@@ -24,12 +25,12 @@
       "targetDate": "2026-09-14T19:30:00",
       "description": "Grand evening Maha Aarti with 108 lamps at the Stage",
       "isActive": false,
-      "postEventMessage": "Maha Aarti concluded. Prasadam is now being distributed at the Stage."
+      "postEventMessage": "Maha Aarti concluded. Sacred blessings distributed at the Stage."
     },
     {
       "id": "cd-3",
       "title": "Grand Visarjan Miravand & Shobhayatra",
-      "targetDate": "2026-09-23T15:00:00",
+      "targetDate": "2026-09-19T15:00:00",
       "description": "Pudhchya varshi lavkar ya! Grand farewell procession starting from Stage.",
       "isActive": false,
       "postEventMessage": "Ganpati Bappa Morya, Pudhchya Varshi Lavkar Ya!"
@@ -39,7 +40,7 @@
     "enabled": true,
     "title": "🌊 VISARJAN",
     "subtitle": "Until we meet again, Bappa ❤️",
-    "targetDate": "2026-09-23T16:00:00",
+    "targetDate": "2026-09-19T16:00:00",
     "routeDescription": "Procession begins at Stage, moves through Main Gate, Inner Boulevard, and proceeds to the designated immersion tank with Dhol Tasha.",
     "stageLocation": "Stage"
   },
@@ -55,24 +56,14 @@
       "order": 1
     },
     {
-      "id": "pt-2",
-      "name": "Nitya Morning Aarti & Atharvashirsha",
-      "date": "Daily (14 - 23 Sep)",
-      "time": "07:30 AM",
-      "description": "Morning prayer followed by 21 avartan of Ganpati Atharvashirsha Pathan.",
-      "location": "Stage",
-      "isSpecial": false,
-      "order": 2
-    },
-    {
       "id": "pt-3",
       "name": "Nitya Evening Aarti",
-      "date": "Daily (14 - 23 Sep)",
+      "date": "Daily (14 - 19 Sep)",
       "time": "07:30 PM",
       "description": "Community evening prayer with dhol, shankh naad, and bhajans.",
       "location": "Stage",
       "isSpecial": false,
-      "order": 3
+      "order": 2
     },
     {
       "id": "pt-4",
@@ -82,40 +73,40 @@
       "description": "Sacred fire ritual offering 1,008 freshly made modaks for community prosperity.",
       "location": "Stage",
       "isSpecial": true,
-      "order": 4
+      "order": 3
     },
     {
       "id": "pt-5",
       "name": "Grand Maha Aarti & Chhappan Bhog",
-      "date": "22 September 2026",
+      "date": "18 September 2026",
       "time": "08:00 PM",
       "description": "Royal Chintamani Maha Aarti with 108 diyas and 56 sacred delicacies offered.",
       "location": "Stage",
       "isSpecial": true,
-      "order": 5
+      "order": 4
     },
     {
       "id": "pt-6",
       "name": "Uttar Pooja & Visarjan Aarti",
-      "date": "23 September 2026",
+      "date": "19 September 2026",
       "time": "03:00 PM",
       "description": "Farewell pooja, floral tribute, and concluding devotional prayer.",
       "location": "Stage",
       "isSpecial": true,
-      "order": 6
+      "order": 5
     }
   ],
   "events": [
     {
       "id": "ev-1",
-      "name": "Grand Aagman & Dhol Tasha Procession",
+      "name": "Ganesh Chaturthi Sthapana Pooja",
       "date": "14 September 2026",
       "startTime": "08:00 AM",
       "endTime": "10:30 AM",
-      "description": "Live traditional Nashik Dhol Tasha troupe accompanying Bappa into Pearl Community.",
+      "description": "Sacred sthapana rituals and community prayers welcoming Bappa to the Stage.",
       "location": "Stage",
       "image": "/images/ganpati-hero.jpg",
-      "category": "Cultural Program",
+      "category": "Special Pooja",
       "isFeatured": true,
       "order": 1
     },
@@ -161,7 +152,7 @@
     {
       "id": "ev-5",
       "name": "Cultural Classical Dance & Drama Night",
-      "date": "19 September 2026",
+      "date": "18 September 2026",
       "startTime": "08:00 PM",
       "endTime": "10:30 PM",
       "description": "Bharatanatyam, Kathak, and musical drama enactments celebrating Lord Ganesha.",
@@ -172,22 +163,9 @@
       "order": 5
     },
     {
-      "id": "ev-6",
-      "name": "Community Antakshari & Musical Night",
-      "date": "20 September 2026",
-      "startTime": "08:00 PM",
-      "endTime": "10:00 PM",
-      "description": "Fun-filled family musical games and team antakshari for all blocks.",
-      "location": "Stage",
-      "image": "/images/maha-aarti.jpg",
-      "category": "Music",
-      "isFeatured": false,
-      "order": 6
-    },
-    {
       "id": "ev-7",
       "name": "Grand Visarjan Shobhayatra",
-      "date": "23 September 2026",
+      "date": "19 September 2026",
       "startTime": "04:00 PM",
       "endTime": "09:00 PM",
       "description": "Gulal, fireworks, dhol tasha, and emotional farewell to Pearl Cha Chintamani.",
@@ -195,7 +173,7 @@
       "image": "/images/visarjan-procession.jpg",
       "category": "Cultural Program",
       "isFeatured": true,
-      "order": 7
+      "order": 6
     }
   ],
   "announcements": [
@@ -261,6 +239,36 @@
   ],
   "volunteers": [
     {
+      "id": "vol-1789275734578-nur9d",
+      "name": "Volunteer 2",
+      "flatNo": "Tower A - 201",
+      "phone": "+91 98765 43210",
+      "category": "Decoration",
+      "notes": "Available",
+      "createdAt": "2026-09-13T05:02:14.578Z",
+      "status": "registered"
+    },
+    {
+      "id": "vol-1789275734534-2u32u",
+      "name": "Volunteer 1",
+      "flatNo": "Tower A - 101",
+      "phone": "+91 98765 43210",
+      "category": "Decoration",
+      "notes": "Available",
+      "createdAt": "2026-09-13T05:02:14.534Z",
+      "status": "registered"
+    },
+    {
+      "id": "vol-1789275734486-5szny",
+      "name": "Volunteer 0",
+      "flatNo": "Tower A - 001",
+      "phone": "+91 98765 43210",
+      "category": "Decoration",
+      "notes": "Available",
+      "createdAt": "2026-09-13T05:02:14.486Z",
+      "status": "registered"
+    },
+    {
       "id": "vol-1789239005812-lx6y3",
       "name": "Karan Joshi",
       "flatNo": "Tower A - 1102",
@@ -301,44 +309,7 @@
       "status": "confirmed"
     }
   ],
-  "prasadam": [
-    {
-      "id": "pr-1",
-      "date": "14 September 2026",
-      "menu": "Ukadiche Modak, Sheera, and Panchamrit",
-      "time": "12:30 PM & 08:30 PM",
-      "location": "Stage",
-      "sponsorNotes": "Sponsored by Pearl Committee in welcoming Bappa.",
-      "isSpecial": true
-    },
-    {
-      "id": "pr-2",
-      "date": "15 September 2026",
-      "menu": "Kaju Katli, Boondi Laddoo, and Chana Sundal",
-      "time": "08:30 PM",
-      "location": "Stage",
-      "sponsorNotes": "Seva offered by Tower A residents.",
-      "isSpecial": false
-    },
-    {
-      "id": "pr-3",
-      "date": "16 September 2026",
-      "menu": "Puran Poli, Katachi Amti, and Kheer",
-      "time": "08:30 PM",
-      "location": "Stage",
-      "sponsorNotes": "Seva offered by Tower B residents.",
-      "isSpecial": true
-    },
-    {
-      "id": "pr-4",
-      "date": "22 September 2026",
-      "menu": "Chhappan Bhog Mahaprasad Feast",
-      "time": "01:00 PM - 03:30 PM",
-      "location": "Stage",
-      "sponsorNotes": "Grand community feast for all residents and staff.",
-      "isSpecial": true
-    }
-  ],
+  "prasadam": [],
   "competitions": [
     {
       "id": "comp-1",
@@ -487,6 +458,54 @@
   },
   "blessings": [
     {
+      "id": "bl-1789275734343-4kcfm",
+      "name": "Devotee 4",
+      "flatNo": "B-202",
+      "message": "Blessings message number 4",
+      "status": "pending",
+      "createdAt": "2026-09-13T05:02:14.343Z"
+    },
+    {
+      "id": "bl-1789275734285-cgl3r",
+      "name": "Devotee 3",
+      "flatNo": "B-202",
+      "message": "Blessings message number 3",
+      "status": "pending",
+      "createdAt": "2026-09-13T05:02:14.285Z"
+    },
+    {
+      "id": "bl-1789275734237-ha3dd",
+      "name": "Devotee 2",
+      "flatNo": "B-202",
+      "message": "Blessings message number 2",
+      "status": "pending",
+      "createdAt": "2026-09-13T05:02:14.237Z"
+    },
+    {
+      "id": "bl-1789275734184-div8w",
+      "name": "Devotee 1",
+      "flatNo": "B-202",
+      "message": "Blessings message number 1",
+      "status": "pending",
+      "createdAt": "2026-09-13T05:02:14.184Z"
+    },
+    {
+      "id": "bl-1789275734145-5c6oc",
+      "name": "Devotee 0",
+      "flatNo": "B-202",
+      "message": "Blessings message number 0",
+      "status": "pending",
+      "createdAt": "2026-09-13T05:02:14.145Z"
+    },
+    {
+      "id": "bl-1789275734084-dcvo9",
+      "name": "Devotee",
+      "flatNo": "Tower A-101",
+      "message": "alert(\"XSS\")May Lord Ganesha protect everyone!",
+      "status": "pending",
+      "createdAt": "2026-09-13T05:02:14.084Z"
+    },
+    {
       "id": "bl-1789239005703-cgl5g",
       "name": "Anil & Sangeeta",
       "flatNo": "Tower B - 904",
@@ -535,7 +554,7 @@
     {
       "id": "mem-2",
       "year": 2024,
-      "title": "Pearl Cha Chintamani 2024 - \"Pratham Aagman\"",
+      "title": "Pearl Cha Chintamani 2024 - \"Pratham Utsav\"",
       "description": "The foundation year when Pearl Community brought together all 3 towers for a grand 10-day cultural extravaganza.",
       "coverImage": "/images/visarjan-procession.jpg",
       "highlights": [
@@ -543,6 +562,37 @@
         "Inter-tower cultural sports and rangoli festival",
         "Tearful and joyous visarjan procession with thousands joining"
       ]
+    }
+  ],
+  "pushSubscriptions": [
+    {
+      "id": "sub-1789275352165-qkcs0",
+      "endpoint": "https://fcm.googleapis.com/fcm/send/test-token-12345",
+      "keys": {
+        "p256dh": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QT9AcDnVwT3Yr3vHmwHz34HRbZCHbDXvW3QCq",
+        "auth": "tBHItJI5svbpez7KI4CCXg"
+      },
+      "createdAt": "2026-09-13T04:55:52.165Z"
+    }
+  ],
+  "sentNotifications": [
+    {
+      "id": "notif-1789275701189",
+      "title": "Aarti Reminder Test",
+      "message": "Evening Aarti starting at 07:30 PM at the Stage.",
+      "url": "/#timings",
+      "category": "general",
+      "sentAt": "2026-09-13T05:01:41.189Z",
+      "recipientCount": 1
+    },
+    {
+      "id": "notif-1789275518604",
+      "title": "Aarti Reminder Test",
+      "message": "Evening Aarti starting at 07:30 PM at the Stage.",
+      "url": "/#timings",
+      "category": "general",
+      "sentAt": "2026-09-13T04:58:38.604Z",
+      "recipientCount": 1
     }
   ]
 }

@@ -46,6 +46,10 @@ import {
   Sparkles,
   Menu,
   X,
+  BellRing,
+  Send,
+  Upload,
+  Radio,
 } from 'lucide-react';
 
 interface Props {
@@ -60,8 +64,24 @@ export default function AdminDashboardClient({ initialData }: Props) {
   const [savingSection, setSavingSection] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Quick edit state for overview
-  const [quickAartiTime, setQuickAartiTime] = useState('07:30 PM');
+  // Quick edit state for overview (initialized from live database values)
+  const [quickAartiTime, setQuickAartiTime] = useState(
+    initialData.poojaTimings?.find((p) => p.name.toLowerCase().includes('evening'))?.time || '07:30 PM'
+  );
+  const [quickAnnouncementText, setQuickAnnouncementText] = useState(
+    initialData.announcements?.[0]?.content || ''
+  );
+
+  // Push notifications form state
+  const [pushTitle, setPushTitle] = useState('Pearl Cha Chintamani 2026');
+  const [pushMessage, setPushMessage] = useState('');
+  const [pushUrl, setPushUrl] = useState('/');
+  const [pinAsAnnouncement, setPinAsAnnouncement] = useState(true);
+  const [sendingPush, setSendingPush] = useState(false);
+
+  // Volunteer dialog state
+  const [volunteerModalOpen, setVolunteerModalOpen] = useState(false);
+  const [editingVolunteer, setEditingVolunteer] = useState<Volunteer | null>(null);
 
   const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
     setNotification({ message, type });
@@ -89,6 +109,7 @@ export default function AdminDashboardClient({ initialData }: Props) {
       }
 
       setData((prev) => ({ ...prev, [section]: updatedData }));
+      router.refresh();
       showNotification(`Saved changes for ${section}! Public website is updated.`);
     } catch (err: any) {
       showNotification(err.message || 'Failed to save changes', 'error');
@@ -99,14 +120,14 @@ export default function AdminDashboardClient({ initialData }: Props) {
 
   const tabs = [
     { id: 'overview', label: 'Dashboard', icon: Shield },
+    { id: 'notifications', label: 'Push Alerts', icon: BellRing },
     { id: 'countdowns', label: 'Countdowns', icon: Clock },
     { id: 'visarjan', label: 'Visarjan', icon: Waves },
     { id: 'pooja', label: 'Pooja Timings', icon: Sparkles },
     { id: 'events', label: 'Events', icon: Calendar },
-    { id: 'announcements', label: 'Announcements', icon: Bell },
+    { id: 'announcements', label: 'Announcements', icon: Radio },
     { id: 'gallery', label: 'Gallery', icon: Camera },
     { id: 'volunteers', label: 'Volunteers', icon: HeartHandshake },
-    { id: 'prasadam', label: 'Prasadam', icon: Utensils },
     { id: 'competitions', label: 'Competitions', icon: Trophy },
     { id: 'map', label: 'Apartment Map', icon: MapPin },
     { id: 'contacts', label: 'Contacts & Seva', icon: Phone },
@@ -159,6 +180,51 @@ export default function AdminDashboardClient({ initialData }: Props) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Maintenance Mode Status & Toggle */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              background: data.siteSettings.maintenanceMode ? 'rgba(211, 47, 47, 0.25)' : 'rgba(46, 125, 50, 0.2)',
+              border: data.siteSettings.maintenanceMode ? '1px solid #ff5252' : '1px solid rgba(76, 175, 80, 0.4)',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                color: data.siteSettings.maintenanceMode ? '#ff8a80' : '#81c784',
+              }}
+            >
+              {data.siteSettings.maintenanceMode ? '⚠️ MAINTENANCE ACTIVE' : '🟢 SITE LIVE'}
+            </span>
+            <button
+              onClick={async () => {
+                const newMode = !data.siteSettings.maintenanceMode;
+                const updated = { ...data.siteSettings, maintenanceMode: newMode };
+                await saveSection('siteSettings', updated);
+              }}
+              disabled={savingSection === 'siteSettings'}
+              style={{
+                background: data.siteSettings.maintenanceMode ? '#d32f2f' : 'var(--gold-gradient)',
+                color: data.siteSettings.maintenanceMode ? '#fff' : '#140305',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '3px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+              title={data.siteSettings.maintenanceMode ? 'Click to make public website live' : 'Click to enable maintenance screen'}
+            >
+              {data.siteSettings.maintenanceMode ? 'Go Live' : 'Maintenance'}
+            </button>
+          </div>
+
           <Link
             href="/"
             target="_blank"
@@ -389,8 +455,8 @@ export default function AdminDashboardClient({ initialData }: Props) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <input
                       type="text"
-                      defaultValue={data.announcements[0]?.content || ''}
-                      id="quick-announcement-input"
+                      value={quickAnnouncementText}
+                      onChange={(e) => setQuickAnnouncementText(e.target.value)}
                       placeholder="Enter urgent community notice..."
                       style={{
                         padding: '8px 12px',
@@ -403,11 +469,21 @@ export default function AdminDashboardClient({ initialData }: Props) {
                     />
                     <button
                       onClick={() => {
-                        const val = (document.getElementById('quick-announcement-input') as HTMLInputElement)?.value;
-                        if (!val) return;
+                        const text = quickAnnouncementText.trim();
+                        if (!text) return;
                         const updated = [...data.announcements];
                         if (updated[0]) {
-                          updated[0] = { ...updated[0], content: val, isImportant: true, active: true };
+                          updated[0] = { ...updated[0], content: text, isImportant: true, active: true };
+                        } else {
+                          updated.push({
+                            id: `anc-${Date.now()}`,
+                            title: 'Urgent Notice',
+                            content: text,
+                            isImportant: true,
+                            publishDate: new Date().toISOString().split('T')[0],
+                            expiryDate: '2026-09-24',
+                            active: true,
+                          });
                         }
                         saveSection('announcements', updated);
                       }}
@@ -1295,31 +1371,198 @@ export default function AdminDashboardClient({ initialData }: Props) {
                     Volunteer Registrations & Seva Management
                   </h2>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    Residents signed up for festival seva. Update status, contact details, or add walk-in volunteers.
+                    Residents signed up for festival seva. Update status, edit contact details, or add new volunteers.
                   </p>
                 </div>
                 <button
                   onClick={() => {
-                    const newVol: Volunteer = {
+                    setEditingVolunteer({
                       id: `vol-${Date.now()}`,
-                      name: 'Walk-in Volunteer',
-                      flatNo: 'Tower B - 204',
-                      phone: '+91 98000 00000',
+                      name: '',
+                      flatNo: '',
+                      phone: '',
                       category: 'Pooja',
-                      notes: 'Registered at stage desk',
+                      notes: '',
                       createdAt: new Date().toISOString(),
                       status: 'confirmed',
-                    };
-                    const updated = [newVol, ...data.volunteers];
-                    saveSection('volunteers', updated);
+                    });
+                    setVolunteerModalOpen(true);
                   }}
                   className="btn-gold"
-                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                  style={{ padding: '8px 16px', fontSize: '0.85rem' }}
                 >
                   <Plus size={14} />
                   <span>Add Volunteer</span>
                 </button>
               </div>
+
+              {/* Volunteer Add/Edit Modal */}
+              {volunteerModalOpen && editingVolunteer && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 150,
+                    padding: '16px',
+                  }}
+                >
+                  <div
+                    className="royal-card"
+                    style={{
+                      maxWidth: '520px',
+                      width: '100%',
+                      padding: '24px',
+                      border: '2px solid var(--gold-500)',
+                      boxShadow: '0 12px 40px rgba(0,0,0,0.8)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h3 className="font-royal" style={{ fontSize: '1.25rem', color: 'var(--ivory)' }}>
+                        {data.volunteers.some((v) => v.id === editingVolunteer.id) ? 'Edit Volunteer Seva' : 'Add New Volunteer'}
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setVolunteerModalOpen(false);
+                          setEditingVolunteer(null);
+                        }}
+                        style={{ background: 'none', border: 'none', color: 'var(--gold-400)', cursor: 'pointer' }}
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                          Devotee Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={editingVolunteer.name}
+                          onChange={(e) => setEditingVolunteer({ ...editingVolunteer, name: e.target.value })}
+                          placeholder="e.g. Ramesh Kulkarni"
+                          style={{ width: '100%', padding: '8px 12px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                            Flat / Tower *
+                          </label>
+                          <input
+                            type="text"
+                            value={editingVolunteer.flatNo}
+                            onChange={(e) => setEditingVolunteer({ ...editingVolunteer, flatNo: e.target.value })}
+                            placeholder="e.g. Tower B - 504"
+                            style={{ width: '100%', padding: '8px 12px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                            Phone Number *
+                          </label>
+                          <input
+                            type="text"
+                            value={editingVolunteer.phone}
+                            onChange={(e) => setEditingVolunteer({ ...editingVolunteer, phone: e.target.value })}
+                            placeholder="e.g. +91 98200 12345"
+                            style={{ width: '100%', padding: '8px 12px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                            Seva Wing
+                          </label>
+                          <select
+                            value={editingVolunteer.category}
+                            onChange={(e) => setEditingVolunteer({ ...editingVolunteer, category: e.target.value as Volunteer['category'] })}
+                            style={{ width: '100%', padding: '8px 12px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                          >
+                            <option value="Pooja">Pooja & Rituals</option>
+                            <option value="Decoration">Decoration & Stage</option>
+                            <option value="Cultural Events">Cultural & Music</option>
+                            <option value="Photography">Photography & Media</option>
+                            <option value="Prasadam">Prasad Distribution</option>
+                            <option value="Cleanup">Swachhata / Cleanup</option>
+                            <option value="Visarjan">Visarjan Seva</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                            Status
+                          </label>
+                          <select
+                            value={editingVolunteer.status || 'registered'}
+                            onChange={(e) => setEditingVolunteer({ ...editingVolunteer, status: e.target.value as any })}
+                            style={{ width: '100%', padding: '8px 12px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                          >
+                            <option value="registered">Registered</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="confirmed">Confirmed</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                          Notes / Availability
+                        </label>
+                        <input
+                          type="text"
+                          value={editingVolunteer.notes || ''}
+                          onChange={(e) => setEditingVolunteer({ ...editingVolunteer, notes: e.target.value })}
+                          placeholder="e.g. Available every evening for Aarti"
+                          style={{ width: '100%', padding: '8px 12px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVolunteerModalOpen(false);
+                            setEditingVolunteer(null);
+                          }}
+                          className="btn-outline-gold"
+                          style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!editingVolunteer.name.trim() || !editingVolunteer.phone.trim()) {
+                              showNotification('Please enter volunteer name and phone number', 'error');
+                              return;
+                            }
+                            const exists = data.volunteers.some((v) => v.id === editingVolunteer.id);
+                            const updated = exists
+                              ? data.volunteers.map((v) => (v.id === editingVolunteer.id ? editingVolunteer : v))
+                              : [editingVolunteer, ...data.volunteers];
+                            saveSection('volunteers', updated);
+                            setVolunteerModalOpen(false);
+                            setEditingVolunteer(null);
+                          }}
+                          className="btn-gold"
+                          style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                        >
+                          Save Volunteer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div style={{ overflowX: 'auto', background: 'rgba(28, 3, 6, 0.85)', borderRadius: '12px', border: '1px solid var(--border-gold)' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
@@ -1379,11 +1622,23 @@ export default function AdminDashboardClient({ initialData }: Props) {
                             <option value="confirmed">Confirmed</option>
                           </select>
                         </td>
-                        <td style={{ padding: '14px', textAlign: 'center' }}>
+                        <td style={{ padding: '14px', textAlign: 'center', whiteSpace: 'nowrap' }}>
                           <button
                             onClick={() => {
-                              const updated = data.volunteers.filter((item) => item.id !== v.id);
-                              saveSection('volunteers', updated);
+                              setEditingVolunteer({ ...v });
+                              setVolunteerModalOpen(true);
+                            }}
+                            style={{ background: 'none', border: 'none', color: 'var(--gold-400)', cursor: 'pointer', padding: '4px', marginRight: '8px' }}
+                            title="Edit Volunteer"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Remove volunteer ${v.name}?`)) {
+                                const updated = data.volunteers.filter((item) => item.id !== v.id);
+                                saveSection('volunteers', updated);
+                              }
                             }}
                             style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer', padding: '4px' }}
                             title="Remove Volunteer"
@@ -1402,36 +1657,77 @@ export default function AdminDashboardClient({ initialData }: Props) {
           {/* TAB: GALLERY */}
           {activeTab === 'gallery' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
                     Gallery & Photos
                   </h2>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    Upload and manage high quality darshan and celebration photos.
+                    Upload and manage high quality darshan and celebration photos. Upload directly from your device or specify an image URL.
                   </p>
                 </div>
-                <button
-                  onClick={() => {
-                    const newPhoto: GalleryItem = {
-                      id: `gal-${Date.now()}`,
-                      title: 'Stage Darshan',
-                      caption: 'Devotees offering prayers at the Stage mandap.',
-                      imageUrl: '/images/ganpati-hero.jpg',
-                      category: 'Darshan',
-                      year: 2026,
-                      isFeatured: true,
-                      createdAt: new Date().toISOString().split('T')[0],
-                    };
-                    const updated = [newPhoto, ...data.gallery];
-                    saveSection('gallery', updated);
-                  }}
-                  className="btn-gold"
-                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
-                >
-                  <Plus size={14} />
-                  <span>Add Photo</span>
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <label
+                    className="btn-gold"
+                    style={{ padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <Upload size={14} />
+                    <span>Upload New Photo</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        try {
+                          showNotification('Uploading image...');
+                          const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+                          const json = await res.json();
+                          if (!res.ok) throw new Error(json.error || 'Upload failed');
+                          const newPhoto: GalleryItem = {
+                            id: `gal-${Date.now()}`,
+                            title: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+                            caption: 'Pearl Cha Chintamani 2026 darshan moment.',
+                            imageUrl: json.url,
+                            category: 'Darshan',
+                            year: 2026,
+                            isFeatured: true,
+                            createdAt: new Date().toISOString().split('T')[0],
+                          };
+                          const updated = [newPhoto, ...data.gallery];
+                          saveSection('gallery', updated);
+                          showNotification('Photo uploaded and added to gallery!');
+                        } catch (err: any) {
+                          showNotification(err.message, 'error');
+                        }
+                      }}
+                    />
+                  </label>
+                  <button
+                    onClick={() => {
+                      const newPhoto: GalleryItem = {
+                        id: `gal-${Date.now()}`,
+                        title: 'Stage Darshan',
+                        caption: 'Devotees offering prayers at the Stage mandap.',
+                        imageUrl: '/images/ganpati-hero.jpg',
+                        category: 'Darshan',
+                        year: 2026,
+                        isFeatured: true,
+                        createdAt: new Date().toISOString().split('T')[0],
+                      };
+                      const updated = [newPhoto, ...data.gallery];
+                      saveSection('gallery', updated);
+                    }}
+                    className="btn-outline-gold"
+                    style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                  >
+                    <Plus size={14} />
+                    <span>Add Manual</span>
+                  </button>
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '18px' }}>
@@ -1443,13 +1739,41 @@ export default function AdminDashboardClient({ initialData }: Props) {
                       </span>
                       <button
                         onClick={() => {
-                          const updated = data.gallery.filter((g) => g.id !== item.id);
-                          saveSection('gallery', updated);
+                          if (confirm('Delete this photo?')) {
+                            const updated = data.gallery.filter((g) => g.id !== item.id);
+                            saveSection('gallery', updated);
+                          }
                         }}
                         style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                        title="Delete Photo"
                       >
                         <Trash2 size={15} />
                       </button>
+                    </div>
+
+                    {/* Image Preview */}
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '140px',
+                        borderRadius: '6px',
+                        overflow: 'hidden',
+                        marginBottom: '10px',
+                        background: '#120204',
+                        border: '1px solid rgba(212, 175, 55, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = 'none';
+                        }}
+                      />
                     </div>
 
                     <div style={{ marginBottom: '10px' }}>
@@ -1474,24 +1798,70 @@ export default function AdminDashboardClient({ initialData }: Props) {
                     </div>
 
                     <div style={{ marginBottom: '10px' }}>
-                      <label style={{ fontSize: '0.74rem', color: 'var(--gold-400)' }}>Image URL or Path</label>
-                      <input
-                        type="text"
-                        value={item.imageUrl}
-                        onChange={(e) => {
-                          const updated = [...data.gallery];
-                          updated[index].imageUrl = e.target.value;
-                          setData({ ...data, gallery: updated });
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '6px 8px',
-                          background: '#1a0407',
-                          border: '1px solid rgba(212, 175, 55, 0.3)',
-                          borderRadius: '4px',
-                          color: '#fff',
-                        }}
-                      />
+                      <label style={{ fontSize: '0.74rem', color: 'var(--gold-400)', display: 'block', marginBottom: '2px' }}>
+                        Image URL or Upload
+                      </label>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <input
+                          type="text"
+                          value={item.imageUrl}
+                          onChange={(e) => {
+                            const updated = [...data.gallery];
+                            updated[index].imageUrl = e.target.value;
+                            setData({ ...data, gallery: updated });
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '6px 8px',
+                            background: '#1a0407',
+                            border: '1px solid rgba(212, 175, 55, 0.3)',
+                            borderRadius: '4px',
+                            color: '#fff',
+                            fontSize: '0.82rem',
+                          }}
+                        />
+                        <label
+                          style={{
+                            background: 'rgba(212, 175, 55, 0.2)',
+                            border: '1px solid var(--gold-500)',
+                            color: 'var(--gold-300)',
+                            padding: '6px 10px',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <Upload size={12} />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            style={{ display: 'none' }}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const fd = new FormData();
+                              fd.append('file', file);
+                              try {
+                                showNotification('Uploading image...');
+                                const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+                                const json = await res.json();
+                                if (!res.ok) throw new Error(json.error || 'Upload failed');
+                                const updated = [...data.gallery];
+                                updated[index].imageUrl = json.url;
+                                setData({ ...data, gallery: updated });
+                                showNotification('Image uploaded! Click Save to apply.');
+                              } catch (err: any) {
+                                showNotification(err.message, 'error');
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
@@ -1522,137 +1892,277 @@ export default function AdminDashboardClient({ initialData }: Props) {
             </div>
           )}
 
-          {/* TAB: PRASADAM */}
-          {activeTab === 'prasadam' && (
+          {/* TAB: PUSH NOTIFICATIONS */}
+          {activeTab === 'notifications' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
-                    Prasadam Schedule
+                    Push Notifications & Devotee Broadcasts
                   </h2>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    Manage the daily menu and donor seva notes for Stage prasadam distribution.
+                    Broadcast instant Web Push notifications to subscribed devotees for Aarti, Visarjan, and urgent festival announcements.
                   </p>
+                </div>
+                <div
+                  style={{
+                    background: 'rgba(212, 175, 55, 0.15)',
+                    border: '1px solid var(--gold-500)',
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <BellRing size={20} color="var(--gold-400)" />
+                  <div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--gold-400)', fontWeight: 700, textTransform: 'uppercase' }}>Subscribers</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--ivory)' }}>
+                      {(data.pushSubscriptions || []).length} Devices
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {data.prasadam.map((pr, index) => (
-                  <div key={pr.id} className="royal-card" style={{ padding: '20px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Date</label>
-                        <input
-                          type="text"
-                          value={pr.date}
-                          onChange={(e) => {
-                            const updated = [...data.prasadam];
-                            updated[index].date = e.target.value;
-                            setData({ ...data, prasadam: updated });
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#1a0407',
-                            border: '1px solid rgba(212, 175, 55, 0.3)',
-                            borderRadius: '6px',
-                            color: '#fff',
-                          }}
-                        />
-                      </div>
+              {/* Quick One-Click Reminders */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                <div className="royal-card" style={{ padding: '20px', border: '1.5px solid var(--gold-500)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '1.2rem' }}>🔔</span>
+                    <h4 className="font-royal" style={{ fontSize: '1.1rem', color: 'var(--ivory)' }}>
+                      Evening Aarti Reminder
+                    </h4>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+                    Notify all devotees: Evening Aarti at Stage (Today at {quickAartiTime}).
+                  </p>
+                  <button
+                    onClick={async () => {
+                      setSendingPush(true);
+                      try {
+                        const res = await fetch('/api/admin/notifications/send', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            title: '🔔 Evening Aarti Reminder — Pearl Cha Chintamani',
+                            body: `Grand Evening Aarti is starting at ${quickAartiTime} at the Stage. Join with family for divine darshan and blessings!`,
+                            url: '/#timings',
+                            pinAsAnnouncement: true,
+                          }),
+                        });
+                        const resJson = await res.json();
+                        if (!res.ok) throw new Error(resJson.error || 'Failed to broadcast');
+                        showNotification(`Broadcast sent to ${resJson.sent} subscriber(s)!`);
+                        if (resJson.record) {
+                          setData((prev) => ({
+                            ...prev,
+                            sentNotifications: [resJson.record, ...(prev.sentNotifications || [])],
+                          }));
+                        }
+                        router.refresh();
+                      } catch (err: any) {
+                        showNotification(err.message, 'error');
+                      } finally {
+                        setSendingPush(false);
+                      }
+                    }}
+                    disabled={sendingPush}
+                    className="btn-gold"
+                    style={{ width: '100%', padding: '8px 14px', fontSize: '0.85rem' }}
+                  >
+                    <Send size={14} />
+                    <span>{sendingPush ? 'Broadcasting...' : 'Send Evening Aarti Alert'}</span>
+                  </button>
+                </div>
 
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Menu Offering</label>
-                        <input
-                          type="text"
-                          value={pr.menu}
-                          onChange={(e) => {
-                            const updated = [...data.prasadam];
-                            updated[index].menu = e.target.value;
-                            setData({ ...data, prasadam: updated });
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#1a0407',
-                            border: '1px solid rgba(212, 175, 55, 0.3)',
-                            borderRadius: '6px',
-                            color: '#fff',
-                          }}
-                        />
-                      </div>
+                <div className="royal-card" style={{ padding: '20px', border: '1.5px solid var(--gold-500)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '1.2rem' }}>🌺</span>
+                    <h4 className="font-royal" style={{ fontSize: '1.1rem', color: 'var(--ivory)' }}>
+                      Visarjan Shobhayatra Reminder
+                    </h4>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+                    Notify all devotees for the Grand Visarjan procession on Saturday, 19 September 2026.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      setSendingPush(true);
+                      try {
+                        const res = await fetch('/api/admin/notifications/send', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            title: '🌺 Visarjan Shobhayatra — Pearl Cha Chintamani',
+                            body: 'Bappa Visarjan Miravnuk begins on 19 September 2026 at 04:00 PM with Dhol Tasha from the Stage. Ganpati Bappa Morya!',
+                            url: '/visarjan',
+                            pinAsAnnouncement: true,
+                          }),
+                        });
+                        const resJson = await res.json();
+                        if (!res.ok) throw new Error(resJson.error || 'Failed to broadcast');
+                        showNotification(`Broadcast sent to ${resJson.sent} subscriber(s)!`);
+                        if (resJson.record) {
+                          setData((prev) => ({
+                            ...prev,
+                            sentNotifications: [resJson.record, ...(prev.sentNotifications || [])],
+                          }));
+                        }
+                        router.refresh();
+                      } catch (err: any) {
+                        showNotification(err.message, 'error');
+                      } finally {
+                        setSendingPush(false);
+                      }
+                    }}
+                    disabled={sendingPush}
+                    className="btn-gold"
+                    style={{ width: '100%', padding: '8px 14px', fontSize: '0.85rem' }}
+                  >
+                    <Send size={14} />
+                    <span>{sendingPush ? 'Broadcasting...' : 'Send Visarjan Alert'}</span>
+                  </button>
+                </div>
+              </div>
 
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Distribution Time</label>
-                        <input
-                          type="text"
-                          value={pr.time}
-                          onChange={(e) => {
-                            const updated = [...data.prasadam];
-                            updated[index].time = e.target.value;
-                            setData({ ...data, prasadam: updated });
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#1a0407',
-                            border: '1px solid rgba(212, 175, 55, 0.3)',
-                            borderRadius: '6px',
-                            color: '#fff',
-                          }}
-                        />
-                      </div>
+              {/* Custom Broadcast Form */}
+              <div className="royal-card" style={{ padding: '24px', marginBottom: '28px' }}>
+                <h3 className="font-royal" style={{ fontSize: '1.25rem', color: 'var(--ivory)', marginBottom: '6px' }}>
+                  Compose Custom Broadcast
+                </h3>
+                <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                  Send any custom alert to all registered devices and optionally pin it to the homepage notice ticker.
+                </p>
 
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Location</label>
-                        <input
-                          type="text"
-                          value="Stage"
-                          readOnly
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#22060a',
-                            border: '1px solid rgba(212, 175, 55, 0.2)',
-                            borderRadius: '6px',
-                            color: 'var(--gold-400)',
-                            fontWeight: 600,
-                          }}
-                        />
-                      </div>
-                    </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                      Notification Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={pushTitle}
+                      onChange={(e) => setPushTitle(e.target.value)}
+                      placeholder="e.g. Bhajan Sandhya Starting Soon!"
+                      style={{ width: '100%', padding: '10px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
+                    />
+                  </div>
 
-                    <div style={{ marginTop: '10px' }}>
-                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Sponsor / Seva Notes</label>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                      Message Body *
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={pushMessage}
+                      onChange={(e) => setPushMessage(e.target.value)}
+                      placeholder="Write the message that appears on residents' phone/desktop notifications..."
+                      style={{ width: '100%', padding: '10px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff', resize: 'vertical' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', marginBottom: '4px' }}>
+                        Target URL (when clicked)
+                      </label>
                       <input
                         type="text"
-                        value={pr.sponsorNotes}
-                        onChange={(e) => {
-                          const updated = [...data.prasadam];
-                          updated[index].sponsorNotes = e.target.value;
-                          setData({ ...data, prasadam: updated });
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '8px',
-                          background: '#1a0407',
-                          border: '1px solid rgba(212, 175, 55, 0.3)',
-                          borderRadius: '6px',
-                          color: '#fff',
-                        }}
+                        value={pushUrl}
+                        onChange={(e) => setPushUrl(e.target.value)}
+                        placeholder="/ or /visarjan or /gallery"
+                        style={{ width: '100%', padding: '10px', background: '#1a0407', border: '1px solid var(--border-gold)', borderRadius: '6px', color: '#fff' }}
                       />
                     </div>
 
+                    <div style={{ display: 'flex', alignItems: 'center', paddingTop: '24px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--cream)' }}>
+                        <input
+                          type="checkbox"
+                          checked={pinAsAnnouncement}
+                          onChange={(e) => setPinAsAnnouncement(e.target.checked)}
+                          style={{ width: '18px', height: '18px', accentColor: '#D4AF37' }}
+                        />
+                        <span>Also pin as Live Ticker Announcement on Homepage</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
                     <button
-                      onClick={() => saveSection('prasadam', data.prasadam)}
+                      onClick={async () => {
+                        if (!pushTitle.trim() || !pushMessage.trim()) {
+                          showNotification('Please provide both a title and message', 'error');
+                          return;
+                        }
+                        setSendingPush(true);
+                        try {
+                          const res = await fetch('/api/admin/notifications/send', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              title: pushTitle.trim(),
+                              body: pushMessage.trim(),
+                              url: pushUrl.trim() || '/',
+                              pinAsAnnouncement,
+                            }),
+                          });
+                          const resJson = await res.json();
+                          if (!res.ok) throw new Error(resJson.error || 'Failed to broadcast');
+                          showNotification(`Broadcast sent to ${resJson.sent} subscriber(s)!`);
+                          setPushMessage('');
+                          if (resJson.record) {
+                            setData((prev) => ({
+                              ...prev,
+                              sentNotifications: [resJson.record, ...(prev.sentNotifications || [])],
+                            }));
+                          }
+                          router.refresh();
+                        } catch (err: any) {
+                          showNotification(err.message, 'error');
+                        } finally {
+                          setSendingPush(false);
+                        }
+                      }}
+                      disabled={sendingPush || !pushMessage.trim()}
                       className="btn-gold"
-                      style={{ marginTop: '12px', padding: '6px 14px', fontSize: '0.8rem' }}
+                      style={{ padding: '10px 24px', fontSize: '0.92rem' }}
                     >
-                      <Save size={13} />
-                      <span>Save Prasadam</span>
+                      <Send size={15} />
+                      <span>{sendingPush ? 'Broadcasting...' : 'Broadcast Notification Now'}</span>
                     </button>
                   </div>
-                ))}
+                </div>
+              </div>
+
+              {/* Sent Notifications History */}
+              <div>
+                <h3 className="font-royal" style={{ fontSize: '1.25rem', color: 'var(--ivory)', marginBottom: '12px' }}>
+                  Notification Broadcast History
+                </h3>
+                {(data.sentNotifications || []).length === 0 ? (
+                  <div className="royal-card" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    No broadcasts sent yet. Use the quick reminders or custom broadcast form above.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {(data.sentNotifications || []).map((sn) => (
+                      <div key={sn.id} className="royal-card" style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                        <div>
+                          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--gold-300)' }}>{sn.title}</div>
+                          <div style={{ fontSize: '0.84rem', color: 'var(--cream)', marginTop: '2px' }}>{sn.message}</div>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            Target: {sn.url || '/'} • {new Date(sn.sentAt).toLocaleString()}
+                          </div>
+                        </div>
+                        <div style={{ background: 'rgba(76, 175, 80, 0.2)', color: '#81c784', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700 }}>
+                          ✓ {sn.recipientCount} delivered
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -2421,6 +2931,53 @@ export default function AdminDashboardClient({ initialData }: Props) {
                       color: '#fff',
                     }}
                   />
+                </div>
+
+                {/* Maintenance Mode Configuration */}
+                <div
+                  style={{
+                    marginBottom: '24px',
+                    padding: '18px',
+                    borderRadius: '8px',
+                    background: data.siteSettings.maintenanceMode ? 'rgba(211, 47, 47, 0.15)' : 'rgba(212, 175, 55, 0.08)',
+                    border: data.siteSettings.maintenanceMode ? '1.5px solid #d32f2f' : '1px solid var(--border-gold)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Shield size={18} color={data.siteSettings.maintenanceMode ? '#ff8a80' : 'var(--gold-400)'} />
+                      <span style={{ fontSize: '1rem', fontWeight: 800, color: data.siteSettings.maintenanceMode ? '#ff8a80' : 'var(--ivory)' }}>
+                        Maintenance Mode
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = { ...data.siteSettings, maintenanceMode: !data.siteSettings.maintenanceMode };
+                        setData({ ...data, siteSettings: updated });
+                      }}
+                      style={{
+                        background: data.siteSettings.maintenanceMode ? '#d32f2f' : 'rgba(212, 175, 55, 0.2)',
+                        border: '1px solid var(--gold-500)',
+                        color: '#fff',
+                        padding: '5px 12px',
+                        borderRadius: '4px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {data.siteSettings.maintenanceMode ? 'Disable (Go Live)' : 'Enable Maintenance'}
+                    </button>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                    When enabled, public visitors will see the sacred Ganesh temple maintenance notice while schedules and updates are finalized. The Admin Console remains fully accessible. Note: No farewell or departure wording is shown.
+                  </p>
+                  {data.siteSettings.maintenanceMode && (
+                    <div style={{ marginTop: '8px', fontSize: '0.78rem', color: '#ff8a80', fontWeight: 700 }}>
+                      ⚠️ Currently active: Visitors will see the maintenance screen until toggled off.
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>

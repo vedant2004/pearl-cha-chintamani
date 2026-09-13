@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
 import { Menu, X, Bell, Shield, Sparkles, MapPin, Calendar, Clock, Heart } from 'lucide-react';
+import NotificationPrompt from './NotificationPrompt';
 
 interface HeaderProps {
   announcementText?: string;
@@ -42,7 +43,6 @@ export default function Header({ announcementText, isImportantAnnouncement }: He
     { name: 'Announcements', href: '#announcements' },
     { name: 'Gallery', href: '#gallery' },
     { name: 'Map', href: '#map' },
-    { name: 'Prasadam', href: '#prasadam' },
     { name: 'Competitions', href: '#competitions' },
     { name: 'Blessings', href: '#blessings' },
     { name: 'Volunteers', href: '#volunteers' },
@@ -265,6 +265,8 @@ export default function Header({ announcementText, isImportantAnnouncement }: He
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <NotificationPrompt />
+
             <button
               onClick={triggerAartiCelebration}
               className="btn-gold"

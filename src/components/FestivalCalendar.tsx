@@ -1,28 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FestivalEvent, PoojaTiming, PrasadamSchedule } from '@/lib/types';
-import { Calendar, Clock, MapPin, Sparkles, Utensils } from 'lucide-react';
+import { FestivalEvent, PoojaTiming } from '@/lib/types';
+import { Calendar, Clock, MapPin, Sparkles } from 'lucide-react';
 
 interface CalendarProps {
   events: FestivalEvent[];
   poojaTimings: PoojaTiming[];
-  prasadam: PrasadamSchedule[];
 }
 
-export default function FestivalCalendar({ events, poojaTimings, prasadam }: CalendarProps) {
-  // Festival Days (Sep 14 to Sep 23, 2026)
+export default function FestivalCalendar({ events, poojaTimings }: CalendarProps) {
+  // Festival Days (Sep 14 to Sep 19, 2026 - Visarjan on 19 Sep)
   const festivalDays = [
-    { dayNumber: 1, dateStr: '14 Sep', fullDate: '14 September 2026', title: 'Ganesh Chaturthi Aagman' },
-    { dayNumber: 2, dateStr: '15 Sep', fullDate: '15 September 2026', title: 'Bhajan Sandhya' },
-    { dayNumber: 3, dateStr: '16 Sep', fullDate: '16 September 2026', title: 'Kids Clay Art' },
+    { dayNumber: 1, dateStr: '14 Sep', fullDate: '14 September 2026', title: 'Ganesh Chaturthi Sthapana' },
+    { dayNumber: 2, dateStr: '15 Sep', fullDate: '15 September 2026', title: 'Bhajan Sandhya & Kirtan' },
+    { dayNumber: 3, dateStr: '16 Sep', fullDate: '16 September 2026', title: 'Kids Clay Art & Drawing' },
     { dayNumber: 4, dateStr: '17 Sep', fullDate: '17 September 2026', title: 'Rangoli Utsav' },
-    { dayNumber: 5, dateStr: '18 Sep', fullDate: '18 September 2026', title: 'Modak Maha Homam' },
-    { dayNumber: 6, dateStr: '19 Sep', fullDate: '19 September 2026', title: 'Classical Dance Night' },
-    { dayNumber: 7, dateStr: '20 Sep', fullDate: '20 September 2026', title: 'Community Antakshari' },
-    { dayNumber: 8, dateStr: '21 Sep', fullDate: '21 September 2026', title: 'Youth Cultural Night' },
-    { dayNumber: 9, dateStr: '22 Sep', fullDate: '22 September 2026', title: 'Chhappan Bhog & Maha Aarti' },
-    { dayNumber: 10, dateStr: '23 Sep', fullDate: '23 September 2026', title: 'Anant Chaturdashi Visarjan' },
+    { dayNumber: 5, dateStr: '18 Sep', fullDate: '18 September 2026', title: 'Modak Homam & Dance Night' },
+    { dayNumber: 6, dateStr: '19 Sep', fullDate: '19 September 2026', title: 'Grand Visarjan Shobhayatra' },
   ];
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
@@ -39,10 +34,6 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
       p.date.toLowerCase().includes('daily')
   );
 
-  const dayPrasadam = prasadam.filter((pr) =>
-    pr.date.toLowerCase().includes(currentDay.dateStr.toLowerCase())
-  );
-
   return (
     <section id="calendar" className="section-py" style={{ position: 'relative' }}>
       <div className="container">
@@ -53,8 +44,7 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
             <span className="gold-shimmer">Calendar</span>
           </h2>
           <p className="section-subtitle">
-            Explore the complete 10-day celebration schedule. Select any date to see poojas, events,
-            and prasadam planned at the Stage.
+            Explore the complete celebration schedule from 14 to 19 September 2026. Select any date to see poojas and cultural programs planned at the Stage.
           </p>
         </div>
 
@@ -62,7 +52,7 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
         <div
           style={{
             display: 'flex',
-            gap: '10px',
+            gap: '12px',
             overflowX: 'auto',
             paddingBottom: '16px',
             marginBottom: '32px',
@@ -76,8 +66,9 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
                 key={d.dayNumber}
                 onClick={() => setSelectedDayIndex(index)}
                 style={{
-                  flex: '0 0 auto',
-                  padding: '12px 18px',
+                  flex: '1 0 140px',
+                  maxWidth: '180px',
+                  padding: '14px 16px',
                   borderRadius: '16px',
                   border: isSelected
                     ? '1.5px solid var(--gold-400)'
@@ -106,19 +97,18 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
                 <div
                   className="font-royal"
                   style={{
-                    fontSize: '1.1rem',
+                    fontSize: '1.15rem',
                     fontWeight: 800,
-                    margin: '2px 0',
+                    margin: '3px 0',
                   }}
                 >
                   {d.dateStr}
                 </div>
                 <div
                   style={{
-                    fontSize: '0.68rem',
-                    opacity: 0.85,
+                    fontSize: '0.7rem',
+                    opacity: 0.9,
                     whiteSpace: 'nowrap',
-                    maxWidth: '100px',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   }}
@@ -159,7 +149,7 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
                   letterSpacing: '0.12em',
                 }}
               >
-                DAY {currentDay.dayNumber} OF 10
+                DAY {currentDay.dayNumber} OF 6
               </div>
               <h3
                 className="font-royal gold-shimmer"
@@ -191,8 +181,8 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '24px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '28px',
             }}
           >
             {/* Daily Poojas */}
@@ -213,13 +203,13 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
                 <span>🪔</span>
                 <span>Poojas & Aartis</span>
               </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {dayPoojas.length > 0 ? (
                   dayPoojas.map((p) => (
                     <div
                       key={p.id}
                       style={{
-                        padding: '12px 14px',
+                        padding: '14px 16px',
                         background: 'rgba(20, 3, 5, 0.7)',
                         border: '1px solid rgba(212, 175, 55, 0.2)',
                         borderRadius: '10px',
@@ -230,22 +220,22 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
                           fontSize: '0.78rem',
                           color: 'var(--gold-400)',
                           fontWeight: 600,
-                          marginBottom: '2px',
+                          marginBottom: '3px',
                         }}
                       >
                         {p.time} • Stage
                       </div>
-                      <div style={{ fontWeight: 600, color: 'var(--ivory)', fontSize: '0.92rem' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--ivory)', fontSize: '0.95rem', marginBottom: '4px' }}>
                         {p.name}
                       </div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                         {p.description}
                       </div>
                     </div>
                   ))
                 ) : (
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    Nitya Morning (7:30 AM) & Evening (7:30 PM) Aarti at Stage.
+                    Nitya Evening Aarti (7:30 PM) is held daily at the Stage.
                   </div>
                 )}
               </div>
@@ -274,11 +264,11 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
                   <div
                     key={e.id}
                     style={{
-                      padding: '12px 14px',
+                      padding: '14px 16px',
                       background: 'rgba(20, 3, 5, 0.7)',
                       border: '1px solid rgba(212, 175, 55, 0.2)',
                       borderRadius: '10px',
-                      marginBottom: '10px',
+                      marginBottom: '12px',
                     }}
                   >
                     <div
@@ -286,12 +276,12 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
                         fontSize: '0.78rem',
                         color: 'var(--gold-400)',
                         fontWeight: 600,
-                        marginBottom: '2px',
+                        marginBottom: '3px',
                       }}
                     >
                       {e.startTime} - {e.endTime} • Stage
                     </div>
-                    <div style={{ fontWeight: 600, color: 'var(--ivory)', fontSize: '0.95rem' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--ivory)', fontSize: '0.95rem', marginBottom: '4px' }}>
                       {e.name}
                     </div>
                     <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
@@ -302,79 +292,15 @@ export default function FestivalCalendar({ events, poojaTimings, prasadam }: Cal
               ) : (
                 <div
                   style={{
-                    padding: '16px',
+                    padding: '20px',
                     background: 'rgba(20, 3, 5, 0.5)',
                     borderRadius: '10px',
                     color: 'var(--text-muted)',
                     fontSize: '0.88rem',
+                    border: '1px dashed rgba(212, 175, 55, 0.2)',
                   }}
                 >
-                  Open community darshan, bhajans, and family blessings at the Stage.
-                </div>
-              )}
-            </div>
-
-            {/* Today's Prasadam */}
-            <div>
-              <h4
-                style={{
-                  fontSize: '0.95rem',
-                  color: 'var(--gold-300)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                  marginBottom: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <Utensils size={16} color="#FFA000" />
-                <span>Mahaprasadam Seva</span>
-              </h4>
-              {dayPrasadam.length > 0 ? (
-                dayPrasadam.map((pr) => (
-                  <div
-                    key={pr.id}
-                    style={{
-                      padding: '12px 14px',
-                      background: 'rgba(20, 3, 5, 0.7)',
-                      border: '1px solid rgba(212, 175, 55, 0.2)',
-                      borderRadius: '10px',
-                      marginBottom: '10px',
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: '0.78rem',
-                        color: 'var(--gold-400)',
-                        fontWeight: 600,
-                        marginBottom: '2px',
-                      }}
-                    >
-                      {pr.time} • {pr.location}
-                    </div>
-                    <div style={{ fontWeight: 600, color: 'var(--ivory)', fontSize: '0.95rem' }}>
-                      {pr.menu}
-                    </div>
-                    {pr.sponsorNotes && (
-                      <div style={{ fontSize: '0.8rem', color: 'var(--gold-300)', marginTop: '4px' }}>
-                        {pr.sponsorNotes}
-                      </div>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div
-                  style={{
-                    padding: '16px',
-                    background: 'rgba(20, 3, 5, 0.5)',
-                    borderRadius: '10px',
-                    color: 'var(--text-muted)',
-                    fontSize: '0.88rem',
-                  }}
-                >
-                  Fresh Modak, Panchamrit, and Boondi Laddoo distribution following evening Aarti at the Stage.
+                  Open community darshan, devotional bhajans, and family blessings at the Stage.
                 </div>
               )}
             </div>

@@ -150,6 +150,27 @@ export interface SiteSettings {
   announcementTickerEnabled: boolean;
   apartmentName: string;
   city: string;
+  maintenanceMode?: boolean;
+}
+
+export interface PushSubscriptionItem {
+  id: string;
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+  createdAt: string;
+}
+
+export interface SentNotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  url?: string;
+  category: 'aarti' | 'announcement' | 'event' | 'general';
+  sentAt: string;
+  recipientCount: number;
 }
 
 export interface FullDatabaseState {
@@ -168,4 +189,7 @@ export interface FullDatabaseState {
   blessings: BlessingMessage[];
   memories: MemoryItem[];
   siteSettings: SiteSettings;
+  pushSubscriptions?: PushSubscriptionItem[];
+  sentNotifications?: SentNotificationItem[];
 }
+

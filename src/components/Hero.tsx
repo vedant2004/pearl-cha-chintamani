@@ -152,9 +152,21 @@ export default function Hero({
               color: 'var(--cream)',
               fontWeight: 600,
               letterSpacing: '0.06em',
+              marginBottom: '8px',
             }}
           >
             Ganpati Bappa Morya 🙏
+          </p>
+          <p
+            style={{
+              fontSize: '0.95rem',
+              color: 'var(--gold-200)',
+              maxWidth: '620px',
+              margin: '0 auto',
+              lineHeight: 1.6,
+            }}
+          >
+            Welcome to the divine celebrations of Pearl Cha Chintamani 2026. Join our community in prayers, daily aartis, and festive joy at the Stage.
           </p>
         </div>
 
@@ -555,7 +567,7 @@ export default function Hero({
               }}
             >
               {announcementSnippet ||
-                'Evening Aarti timing changed to 7:30 PM today. Prasadam will follow at the Stage.'}
+                'Nitya Evening Aarti is conducted daily at 7:30 PM at the central Stage.'}
             </p>
             <a
               href="#announcements"

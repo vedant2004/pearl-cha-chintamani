@@ -93,3 +93,7 @@ export const volunteerRateLimiter = new SlidingWindowRateLimiter(10 * 60 * 1000,
 
 // 20 file uploads per 10 minutes per admin session
 export const uploadRateLimiter = new SlidingWindowRateLimiter(10 * 60 * 1000, 20);
+
+// 10 push subscriptions per 10 minutes per IP
+export const subscriptionRateLimiter = new SlidingWindowRateLimiter(10 * 60 * 1000, 10);
+

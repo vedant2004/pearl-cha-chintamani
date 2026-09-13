@@ -9,18 +9,23 @@ import FestivalCalendar from '@/components/FestivalCalendar';
 import Announcements from '@/components/Announcements';
 import Gallery from '@/components/Gallery';
 import ApartmentMap from '@/components/ApartmentMap';
-import Prasadam from '@/components/Prasadam';
 import Competitions from '@/components/Competitions';
 import Volunteers from '@/components/Volunteers';
 import Blessings from '@/components/Blessings';
 import Memories from '@/components/Memories';
 import ContactsAndDonations from '@/components/ContactsAndDonations';
 import Footer from '@/components/Footer';
+import MaintenanceScreen from '@/components/MaintenanceScreen';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const db = getDatabase();
+
+  // If Maintenance Mode is enabled by Admin, show Maintenance Screen to public visitors
+  if (db.siteSettings.maintenanceMode) {
+    return <MaintenanceScreen />;
+  }
 
   // Find active countdown
   const activeCountdown =
@@ -65,7 +70,6 @@ export default async function HomePage() {
       <FestivalCalendar
         events={db.events}
         poojaTimings={db.poojaTimings}
-        prasadam={db.prasadam}
       />
 
       <Announcements announcements={db.announcements} />
@@ -73,8 +77,6 @@ export default async function HomePage() {
       <Gallery items={db.gallery} />
 
       <ApartmentMap markers={db.mapMarkers} />
-
-      <Prasadam schedules={db.prasadam} />
 
       <Competitions competitions={db.competitions} />
 

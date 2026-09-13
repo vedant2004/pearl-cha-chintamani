@@ -7,9 +7,14 @@ export async function GET() {
   try {
     const db = getDatabase();
 
-    // Data Privacy: Exclude confidential resident volunteers from public endpoint
+    // Data Privacy & Cleanup: Exclude confidential resident volunteers, push subscriptions, and obsolete prasadam
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { volunteers: _privateVolunteers, ...publicData } = db;
+    const {
+      volunteers: _privateVolunteers,
+      pushSubscriptions: _privateSubs,
+      prasadam: _unusedPrasadam,
+      ...publicData
+    } = db;
 
     const publicState = {
       ...publicData,
