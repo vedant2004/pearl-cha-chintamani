@@ -40,7 +40,7 @@ export interface FestivalEvent {
   description: string;
   location: string;
   image: string;
-  category: 'Cultural Program' | 'Bhajan' | 'Kids Activities' | 'Games' | 'Dance' | 'Music' | 'Special Pooja' | 'Prasadam';
+  category: 'Cultural Program' | 'Bhajan' | 'Kids Activities' | 'Games' | 'Dance' | 'Music' | 'Special Pooja';
   isFeatured: boolean;
   order: number;
 }
@@ -89,7 +89,7 @@ export interface Volunteer {
   name: string;
   flatNo: string;
   phone: string;
-  category: 'Decoration' | 'Pooja' | 'Prasadam' | 'Cultural Events' | 'Photography' | 'Cleanup' | 'Visarjan';
+  category: 'Decoration' | 'Pooja' | 'Cultural Events' | 'Photography' | 'Cleanup' | 'Visarjan';
   notes: string;
   createdAt: string;
   status: 'registered' | 'contacted' | 'confirmed';
@@ -120,7 +120,7 @@ export interface Competition {
 export interface MapMarker {
   id: string;
   title: string;
-  category: 'stage' | 'gate' | 'parking' | 'seating' | 'photo' | 'washroom' | 'prasadam' | 'footwear';
+  category: 'stage' | 'gate' | 'parking' | 'seating' | 'photo';
   description: string;
   x: number; // 0 to 100 percentage
   y: number; // 0 to 100 percentage

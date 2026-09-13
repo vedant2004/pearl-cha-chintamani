@@ -29,7 +29,6 @@ export function isValidPhone(phone: unknown): boolean {
 export const ALLOWED_VOLUNTEER_CATEGORIES = [
   'Decoration',
   'Pooja',
-  'Prasadam',
   'Cultural Events',
   'Photography',
   'Cleanup',

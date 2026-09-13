@@ -20,7 +20,6 @@ export default function Volunteers() {
   const categories = [
     'Decoration',
     'Pooja',
-    'Prasadam',
     'Cultural Events',
     'Photography',
     'Cleanup',

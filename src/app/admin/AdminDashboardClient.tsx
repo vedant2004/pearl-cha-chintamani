@@ -273,6 +273,8 @@ export default function AdminDashboardClient({ initialData }: Props) {
   const tabs = [
     { id: 'overview', label: 'Dashboard', icon: Shield },
     { id: 'schedule', label: 'Festival Schedule', icon: Calendar },
+    { id: 'pooja', label: 'Pooja Timings', icon: Sparkles },
+    { id: 'events', label: 'Events', icon: Calendar },
     { id: 'notifications', label: 'Push Alerts', icon: BellRing },
     { id: 'countdowns', label: 'Countdowns', icon: Clock },
     { id: 'visarjan', label: 'Visarjan', icon: Waves },
@@ -1389,7 +1391,7 @@ export default function AdminDashboardClient({ initialData }: Props) {
                           type="text"
                           value={formName}
                           onChange={(e) => setFormName(e.target.value)}
-                          placeholder="e.g. Morning Aarti, Dhol Tasha Pathak, Maha Aarti"
+                          placeholder="e.g. Dhol Tasha Pathak, Maha Aarti"
                           style={{
                             width: '100%',
                             padding: '9px 12px',
@@ -1753,7 +1755,384 @@ export default function AdminDashboardClient({ initialData }: Props) {
             </div>
           )}
 
-          {/* TAB: ANNOUNCEMENTS */}
+{/* TAB: POOJA TIMINGS */}
+          {activeTab === 'pooja' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Pooja Timings Management
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    All poojas are held at the <strong>Stage</strong>. Update times, dates, or add rituals.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newPooja: PoojaTiming = {
+                      id: `pt-${Date.now()}`,
+                      name: 'Special Pooja',
+                      date: '15 September 2026',
+                      time: '07:00 PM',
+                      description: 'Devotional pooja ceremony at the Stage.',
+                      location: 'Stage',
+                      isSpecial: false,
+                      order: data.poojaTimings.length + 1,
+                    };
+                    const updated = [...data.poojaTimings, newPooja];
+                    saveSection('poojaTimings', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Pooja Timing</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {data.poojaTimings.map((p, index) => (
+                  <div key={p.id} className="royal-card" style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                      <h4 className="font-royal" style={{ fontSize: '1.15rem', color: 'var(--ivory)' }}>
+                        {p.name}
+                      </h4>
+                      <button
+                        onClick={() => {
+                          const updated = data.poojaTimings.filter((item) => item.id !== p.id);
+                          saveSection('poojaTimings', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Pooja Name</label>
+                        <input
+                          type="text"
+                          value={p.name}
+                          onChange={(e) => {
+                            const updated = [...data.poojaTimings];
+                            updated[index].name = e.target.value;
+                            setData({ ...data, poojaTimings: updated });
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            background: '#1a0407',
+                            border: '1px solid rgba(212, 175, 55, 0.3)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Time</label>
+                        <input
+                          type="text"
+                          value={p.time}
+                          onChange={(e) => {
+                            const updated = [...data.poojaTimings];
+                            updated[index].time = e.target.value;
+                            setData({ ...data, poojaTimings: updated });
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            background: '#1a0407',
+                            border: '1px solid rgba(212, 175, 55, 0.3)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Date</label>
+                        <input
+                          type="text"
+                          value={p.date}
+                          onChange={(e) => {
+                            const updated = [...data.poojaTimings];
+                            updated[index].date = e.target.value;
+                            setData({ ...data, poojaTimings: updated });
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            background: '#1a0407',
+                            border: '1px solid rgba(212, 175, 55, 0.3)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Location (Strictly Stage)</label>
+                        <input
+                          type="text"
+                          value="Stage"
+                          readOnly
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            background: '#22060a',
+                            border: '1px solid rgba(212, 175, 55, 0.2)',
+                            borderRadius: '6px',
+                            color: 'var(--gold-400)',
+                            fontWeight: 600,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '10px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
+                      <input
+                        type="text"
+                        value={p.description}
+                        onChange={(e) => {
+                          const updated = [...data.poojaTimings];
+                          updated[index].description = e.target.value;
+                          setData({ ...data, poojaTimings: updated });
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          background: '#1a0407',
+                          border: '1px solid rgba(212, 175, 55, 0.3)',
+                          borderRadius: '6px',
+                          color: '#fff',
+                        }}
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => saveSection('poojaTimings', data.poojaTimings)}
+                      className="btn-gold"
+                      style={{ marginTop: '12px', padding: '6px 14px', fontSize: '0.8rem' }}
+                    >
+                      <Save size={13} />
+                      <span>Save Pooja</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: EVENTS */}
+          {activeTab === 'events' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                    Festival Events Management
+                  </h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    Cultural programs, devotional bhajan nights, and competitions held at the <strong>Stage</strong>.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newEvent: FestivalEvent = {
+                      id: `ev-${Date.now()}`,
+                      name: 'Devotional Bhajan Sandhya',
+                      date: '17 September 2026',
+                      startTime: '07:30 PM',
+                      endTime: '09:30 PM',
+                      description: 'Special devotional music and collective prayers at the Stage.',
+                      location: 'Stage',
+                      image: '/images/maha-aarti.jpg',
+                      category: 'Bhajan',
+                      isFeatured: false,
+                      order: data.events.length + 1,
+                    };
+                    const updated = [...data.events, newEvent];
+                    saveSection('events', updated);
+                  }}
+                  className="btn-gold"
+                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                >
+                  <Plus size={14} />
+                  <span>Add Event</span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {data.events.map((ev, index) => (
+                  <div key={ev.id} className="royal-card" style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h4 className="font-royal" style={{ fontSize: '1.15rem', color: 'var(--ivory)' }}>
+                          {ev.name}
+                        </h4>
+                        {ev.isFeatured && (
+                          <span style={{ fontSize: '0.72rem', background: 'rgba(212, 175, 55, 0.25)', color: 'var(--gold-400)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                            ★ FEATURED
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = data.events.filter((item) => item.id !== ev.id);
+                          saveSection('events', updated);
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
+                        title="Delete Event"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Event Title</label>
+                        <input
+                          type="text"
+                          value={ev.name}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].name = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Date</label>
+                        <input
+                          type="text"
+                          value={ev.date}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].date = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Start Time</label>
+                        <input
+                          type="text"
+                          value={ev.startTime}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].startTime = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>End Time</label>
+                        <input
+                          type="text"
+                          value={ev.endTime}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].endTime = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Category</label>
+                        <select
+                          value={ev.category}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].category = e.target.value as any;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        >
+                          <option value="Cultural Program">Cultural Program</option>
+                          <option value="Bhajan">Bhajan</option>
+                          <option value="Kids Activities">Kids Activities</option>
+                          <option value="Dance">Dance</option>
+                          <option value="Music">Music</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Image Path / URL</label>
+                        <input
+                          type="text"
+                          value={ev.image || ''}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].image = e.target.value;
+                            setData({ ...data, events: updated });
+                          }}
+                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
+                      <textarea
+                        rows={2}
+                        value={ev.description}
+                        onChange={(e) => {
+                          const updated = [...data.events];
+                          updated[index].description = e.target.value;
+                          setData({ ...data, events: updated });
+                        }}
+                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem', resize: 'vertical' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: 'var(--gold-300)', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={ev.isFeatured}
+                          onChange={(e) => {
+                            const updated = [...data.events];
+                            updated[index].isFeatured = e.target.checked;
+                            setData({ ...data, events: updated });
+                          }}
+                        />
+                        <span>Feature on Homepage Hero & Top Cards</span>
+                      </label>
+
+                      <button
+                        onClick={() => saveSection('events', data.events)}
+                        className="btn-gold"
+                        style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+                      >
+                        <Save size={13} />
+                        <span>Save Event</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: '10px' }}>
+                  <button
+                    onClick={() => saveSection('events', data.events)}
+                    disabled={savingSection === 'events'}
+                    className="btn-gold"
+                    style={{ padding: '10px 24px', fontSize: '0.92rem' }}
+                  >
+                    <Save size={16} />
+                    <span>{savingSection === 'events' ? 'Saving Events...' : 'Save All Event Changes'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          
+                    {/* TAB: ANNOUNCEMENTS */}
           {activeTab === 'announcements' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -2105,7 +2484,6 @@ export default function AdminDashboardClient({ initialData }: Props) {
                             <option value="Decoration">Decoration & Stage</option>
                             <option value="Cultural Events">Cultural & Music</option>
                             <option value="Photography">Photography & Media</option>
-                            <option value="Prasadam">Prasad Distribution</option>
                             <option value="Cleanup">Swachhata / Cleanup</option>
                             <option value="Visarjan">Visarjan Seva</option>
                           </select>

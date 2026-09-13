@@ -41,9 +41,7 @@ export default function FestivalCalendar({
           ...poojaTimings.map((p) => ({
             id: p.id,
             name: p.name,
-            category: (p.name.toLowerCase().includes('morning')
-              ? 'Morning Aarti'
-              : p.name.toLowerCase().includes('aarti')
+            category: (p.name.toLowerCase().includes('aarti')
               ? 'Aarti'
               : 'Pooja') as any,
             date: p.date,

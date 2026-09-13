@@ -70,18 +70,6 @@
       "order": 2
     },
     {
-      "id": "sch-3",
-      "name": "Morning Aarti",
-      "category": "Morning Aarti",
-      "date": "15 September 2026",
-      "startTime": "07:00 AM",
-      "endTime": "07:45 AM",
-      "location": "Stage",
-      "description": "Daily morning prayer, kakad aarti, and stotra chanting.",
-      "active": true,
-      "order": 3
-    },
-    {
       "id": "sch-4",
       "name": "Dhol Tasha Utsav",
       "category": "Dhol",
@@ -91,7 +79,7 @@
       "location": "Stage",
       "description": "Energetic rhythmic percussion performance by the society youth pathak.",
       "active": true,
-      "order": 4
+      "order": 3
     },
     {
       "id": "sch-5",
@@ -103,7 +91,7 @@
       "location": "Stage",
       "description": "Nitya sandhya aarti and collective prayer.",
       "active": true,
-      "order": 5
+      "order": 4
     },
     {
       "id": "sch-6",
@@ -115,19 +103,7 @@
       "location": "Stage",
       "description": "Soulful devotional songs, abhangs, and musical offerings by community singers.",
       "active": true,
-      "order": 6
-    },
-    {
-      "id": "sch-7",
-      "name": "Morning Aarti",
-      "category": "Morning Aarti",
-      "date": "16 September 2026",
-      "startTime": "07:00 AM",
-      "endTime": "07:45 AM",
-      "location": "Stage",
-      "description": "Daily morning aarti and stotra chanting.",
-      "active": true,
-      "order": 7
+      "order": 5
     },
     {
       "id": "sch-8",
@@ -139,7 +115,7 @@
       "location": "Stage",
       "description": "Eco-friendly clay Ganesha making workshop and art competition for children.",
       "active": true,
-      "order": 8
+      "order": 6
     },
     {
       "id": "sch-9",
@@ -151,19 +127,7 @@
       "location": "Stage",
       "description": "Grand evening Maha Aarti with community sankalpa.",
       "active": true,
-      "order": 9
-    },
-    {
-      "id": "sch-10",
-      "name": "Morning Aarti",
-      "category": "Morning Aarti",
-      "date": "17 September 2026",
-      "startTime": "07:00 AM",
-      "endTime": "07:45 AM",
-      "location": "Stage",
-      "description": "Daily morning kakad aarti at the Stage.",
-      "active": true,
-      "order": 10
+      "order": 7
     },
     {
       "id": "sch-11",
@@ -175,7 +139,7 @@
       "location": "Stage",
       "description": "Showcase your creativity using vibrant organic colors, flower petals, and diyas.",
       "active": true,
-      "order": 11
+      "order": 8
     },
     {
       "id": "sch-12",
@@ -187,19 +151,7 @@
       "location": "Stage",
       "description": "Devotional evening prayer with shankh and ghanta naad.",
       "active": true,
-      "order": 12
-    },
-    {
-      "id": "sch-13",
-      "name": "Morning Aarti",
-      "category": "Morning Aarti",
-      "date": "18 September 2026",
-      "startTime": "07:00 AM",
-      "endTime": "07:45 AM",
-      "location": "Stage",
-      "description": "Daily morning aarti and Atharvashirsha chanting.",
-      "active": true,
-      "order": 13
+      "order": 9
     },
     {
       "id": "sch-14",
@@ -211,7 +163,7 @@
       "location": "Stage",
       "description": "Sacred fire ritual offering 1,008 freshly made modaks for community prosperity.",
       "active": true,
-      "order": 14
+      "order": 10
     },
     {
       "id": "sch-15",
@@ -223,7 +175,7 @@
       "location": "Stage",
       "description": "Royal Chintamani Maha Aarti with 108 illuminated brass lamps.",
       "active": true,
-      "order": 15
+      "order": 11
     },
     {
       "id": "sch-16",
@@ -235,19 +187,7 @@
       "location": "Stage",
       "description": "Bharatanatyam, Kathak, and musical drama enactments celebrating Lord Ganesha.",
       "active": true,
-      "order": 16
-    },
-    {
-      "id": "sch-17",
-      "name": "Morning Aarti",
-      "category": "Morning Aarti",
-      "date": "19 September 2026",
-      "startTime": "07:00 AM",
-      "endTime": "07:45 AM",
-      "location": "Stage",
-      "description": "Final morning aarti before the farewell ceremonies.",
-      "active": true,
-      "order": 17
+      "order": 12
     },
     {
       "id": "sch-18",
@@ -259,7 +199,7 @@
       "location": "Stage",
       "description": "Farewell pooja, pushpanjali floral tribute, and concluding devotional prayer.",
       "active": true,
-      "order": 18
+      "order": 13
     },
     {
       "id": "sch-19",
@@ -271,12 +211,12 @@
       "location": "Stage",
       "description": "Gulal, dhol tasha, and emotional farewell to Pearl Cha Chintamani.",
       "active": true,
-      "order": 19
+      "order": 14
     }
   ],
   "poojaTimings": [
     {
-      "id": "pt-1",
+      "id": "sch-1",
       "name": "Ganpati Sthapana & Pran Pratishtha",
       "date": "14 September 2026",
       "time": "09:00 AM",
@@ -286,62 +226,92 @@
       "order": 1
     },
     {
-      "id": "pt-3",
-      "name": "Nitya Evening Aarti",
-      "date": "Daily (14 - 19 Sep)",
+      "id": "sch-2",
+      "name": "Evening Maha Aarti",
+      "date": "14 September 2026",
       "time": "07:30 PM",
-      "description": "Community evening prayer with dhol, shankh naad, and bhajans.",
+      "description": "Grand opening evening aarti with 108 lamps at the Stage.",
       "location": "Stage",
-      "isSpecial": false,
+      "isSpecial": true,
       "order": 2
     },
     {
-      "id": "pt-4",
+      "id": "sch-5",
+      "name": "Evening Aarti",
+      "date": "15 September 2026",
+      "time": "07:30 PM",
+      "description": "Nitya sandhya aarti and collective prayer.",
+      "location": "Stage",
+      "isSpecial": false,
+      "order": 3
+    },
+    {
+      "id": "sch-9",
+      "name": "Maha Aarti",
+      "date": "16 September 2026",
+      "time": "07:30 PM",
+      "description": "Grand evening Maha Aarti with community sankalpa.",
+      "location": "Stage",
+      "isSpecial": true,
+      "order": 4
+    },
+    {
+      "id": "sch-12",
+      "name": "Evening Aarti",
+      "date": "17 September 2026",
+      "time": "07:30 PM",
+      "description": "Devotional evening prayer with shankh and ghanta naad.",
+      "location": "Stage",
+      "isSpecial": false,
+      "order": 5
+    },
+    {
+      "id": "sch-14",
       "name": "Special Sahasra Modak Maha Homam",
       "date": "18 September 2026",
       "time": "10:00 AM",
       "description": "Sacred fire ritual offering 1,008 freshly made modaks for community prosperity.",
       "location": "Stage",
       "isSpecial": true,
-      "order": 3
+      "order": 6
     },
     {
-      "id": "pt-5",
-      "name": "Grand Maha Aarti & Chhappan Bhog",
+      "id": "sch-15",
+      "name": "Grand Maha Aarti & 108 Deepotsav",
       "date": "18 September 2026",
-      "time": "08:00 PM",
-      "description": "Royal Chintamani Maha Aarti with 108 diyas and 56 sacred delicacies offered.",
+      "time": "07:30 PM",
+      "description": "Royal Chintamani Maha Aarti with 108 illuminated brass lamps.",
       "location": "Stage",
       "isSpecial": true,
-      "order": 4
+      "order": 7
     },
     {
-      "id": "pt-6",
+      "id": "sch-18",
       "name": "Uttar Pooja & Visarjan Aarti",
       "date": "19 September 2026",
       "time": "03:00 PM",
-      "description": "Farewell pooja, floral tribute, and concluding devotional prayer.",
+      "description": "Farewell pooja, pushpanjali floral tribute, and concluding devotional prayer.",
       "location": "Stage",
       "isSpecial": true,
-      "order": 5
+      "order": 8
     }
   ],
   "events": [
     {
-      "id": "ev-1",
-      "name": "Ganesh Chaturthi Sthapana Pooja",
-      "date": "14 September 2026",
-      "startTime": "08:00 AM",
-      "endTime": "10:30 AM",
-      "description": "Sacred sthapana rituals and community prayers welcoming Bappa to the Stage.",
+      "id": "sch-4",
+      "name": "Dhol Tasha Utsav",
+      "date": "15 September 2026",
+      "startTime": "06:00 PM",
+      "endTime": "07:15 PM",
+      "description": "Energetic rhythmic percussion performance by the society youth pathak.",
       "location": "Stage",
-      "image": "/images/ganpati-hero.jpg",
-      "category": "Special Pooja",
+      "image": "/images/maha-aarti.jpg",
+      "category": "Dhol",
       "isFeatured": true,
       "order": 1
     },
     {
-      "id": "ev-2",
+      "id": "sch-6",
       "name": "Evening Bhajan Sandhya & Kirtan",
       "date": "15 September 2026",
       "startTime": "08:15 PM",
@@ -349,60 +319,60 @@
       "description": "Soulful devotional songs, abhangs, and musical offerings by community singers.",
       "location": "Stage",
       "image": "/images/maha-aarti.jpg",
-      "category": "Bhajan",
+      "category": "Cultural",
       "isFeatured": true,
       "order": 2
     },
     {
-      "id": "ev-3",
-      "name": "Kids Bal Ganesha Drawing & Clay Idol Making",
+      "id": "sch-8",
+      "name": "Kids Bal Ganesha Drawing & Clay Art",
       "date": "16 September 2026",
       "startTime": "05:00 PM",
       "endTime": "07:00 PM",
       "description": "Eco-friendly clay Ganesha making workshop and art competition for children.",
       "location": "Stage",
-      "image": "/images/ganpati-hero.jpg",
-      "category": "Kids Activities",
-      "isFeatured": false,
+      "image": "/images/maha-aarti.jpg",
+      "category": "Competition",
+      "isFeatured": true,
       "order": 3
     },
     {
-      "id": "ev-4",
+      "id": "sch-11",
       "name": "Traditional Rangoli & Flower Carpet Competition",
       "date": "17 September 2026",
       "startTime": "04:00 PM",
       "endTime": "06:30 PM",
-      "description": "Showcase your creativity using vibrant colors, flower petals, and diyas.",
+      "description": "Showcase your creativity using vibrant organic colors, flower petals, and diyas.",
       "location": "Stage",
       "image": "/images/maha-aarti.jpg",
-      "category": "Cultural Program",
+      "category": "Competition",
       "isFeatured": false,
       "order": 4
     },
     {
-      "id": "ev-5",
+      "id": "sch-16",
       "name": "Cultural Classical Dance & Drama Night",
       "date": "18 September 2026",
-      "startTime": "08:00 PM",
+      "startTime": "08:15 PM",
       "endTime": "10:30 PM",
       "description": "Bharatanatyam, Kathak, and musical drama enactments celebrating Lord Ganesha.",
       "location": "Stage",
       "image": "/images/maha-aarti.jpg",
-      "category": "Dance",
-      "isFeatured": true,
+      "category": "Cultural",
+      "isFeatured": false,
       "order": 5
     },
     {
-      "id": "ev-7",
-      "name": "Grand Visarjan Shobhayatra",
+      "id": "sch-19",
+      "name": "Grand Visarjan Shobhayatra & Dhol Pathak",
       "date": "19 September 2026",
       "startTime": "04:00 PM",
       "endTime": "09:00 PM",
-      "description": "Gulal, fireworks, dhol tasha, and emotional farewell to Pearl Cha Chintamani.",
+      "description": "Gulal, dhol tasha, and emotional farewell to Pearl Cha Chintamani.",
       "location": "Stage",
-      "image": "/images/visarjan-procession.jpg",
-      "category": "Cultural Program",
-      "isFeatured": true,
+      "image": "/images/maha-aarti.jpg",
+      "category": "Dhol",
+      "isFeatured": false,
       "order": 6
     }
   ],
