@@ -9,6 +9,7 @@ import { FullDatabaseState } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 
 const VALID_SECTIONS: (keyof FullDatabaseState)[] = [
+  'schedule',
   'poojaTimings',
   'events',
   'announcements',
@@ -70,6 +71,47 @@ export async function POST(request: Request) {
           p.location = 'Stage';
         }
       });
+    }
+
+    if (section === 'schedule' && Array.isArray(cleanData)) {
+      cleanData.forEach((s: any) => {
+        if (!s.location || s.location.toLowerCase().includes('club')) {
+          s.location = 'Stage';
+        }
+        if (s.category && s.category.toLowerCase().includes('prasad')) {
+          s.category = 'Cultural';
+        }
+      });
+
+      // Backward compatibility sync for legacy consumers of poojaTimings and events
+      db.poojaTimings = cleanData
+        .filter((s: any) => ['Pooja', 'Aarti', 'Morning Aarti'].includes(s.category))
+        .map((s: any, idx: number) => ({
+          id: s.id,
+          name: s.name,
+          date: s.date,
+          time: s.startTime,
+          description: s.description || '',
+          location: s.location || 'Stage',
+          isSpecial: s.category === 'Pooja' || (s.name && s.name.toLowerCase().includes('maha')),
+          order: idx + 1,
+        }));
+
+      db.events = cleanData
+        .filter((s: any) => !['Pooja', 'Aarti', 'Morning Aarti'].includes(s.category))
+        .map((s: any, idx: number) => ({
+          id: s.id,
+          name: s.name,
+          date: s.date,
+          startTime: s.startTime,
+          endTime: s.endTime || '',
+          description: s.description || '',
+          location: s.location || 'Stage',
+          image: '/images/maha-aarti.jpg',
+          category: s.category,
+          isFeatured: idx < 3,
+          order: idx + 1,
+        }));
     }
 
     // 6. Two-way sync for active countdown and siteSettings

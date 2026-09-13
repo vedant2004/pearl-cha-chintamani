@@ -1,3 +1,25 @@
+export type ScheduleCategory =
+  | 'Morning Aarti'
+  | 'Pooja'
+  | 'Aarti'
+  | 'Dhol'
+  | 'Cultural'
+  | 'Competition'
+  | 'Other';
+
+export interface ScheduleItem {
+  id: string;
+  name: string;
+  category: ScheduleCategory;
+  date: string;
+  startTime: string;
+  endTime?: string;
+  location: string;
+  description?: string;
+  active: boolean;
+  order?: number;
+}
+
 export interface PoojaTiming {
   id: string;
   name: string;
@@ -174,6 +196,7 @@ export interface SentNotificationItem {
 }
 
 export interface FullDatabaseState {
+  schedule: ScheduleItem[];
   poojaTimings: PoojaTiming[];
   events: FestivalEvent[];
   announcements: Announcement[];

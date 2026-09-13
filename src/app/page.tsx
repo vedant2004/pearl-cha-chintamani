@@ -68,6 +68,7 @@ export default async function HomePage() {
       <Events events={db.events} />
 
       <FestivalCalendar
+        schedule={db.schedule}
         events={db.events}
         poojaTimings={db.poojaTimings}
       />

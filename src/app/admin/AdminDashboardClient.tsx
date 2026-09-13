@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   FullDatabaseState,
+  ScheduleItem,
+  ScheduleCategory,
   PoojaTiming,
   FestivalEvent,
   Announcement,
@@ -50,7 +52,12 @@ import {
   Send,
   Upload,
   Radio,
+  Search,
+  Eye,
+  EyeOff,
+  Check,
 } from 'lucide-react';
+import { getCategoryBadgeStyle, sortScheduleChronologically } from '@/lib/schedule-utils';
 
 interface Props {
   initialData: FullDatabaseState;
@@ -83,6 +90,115 @@ export default function AdminDashboardClient({ initialData }: Props) {
   const [volunteerModalOpen, setVolunteerModalOpen] = useState(false);
   const [editingVolunteer, setEditingVolunteer] = useState<Volunteer | null>(null);
 
+  // Schedule state & filters
+  const [filterScheduleDay, setFilterScheduleDay] = useState<string>('all');
+  const [filterScheduleCategory, setFilterScheduleCategory] = useState<string>('all');
+  const [searchScheduleQuery, setSearchScheduleQuery] = useState<string>('');
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [editingScheduleItem, setEditingScheduleItem] = useState<ScheduleItem | null>(null);
+  const [deletingScheduleItem, setDeletingScheduleItem] = useState<ScheduleItem | null>(null);
+
+  // Form fields for Add/Edit Schedule Modal
+  const [formName, setFormName] = useState('');
+  const [formCategory, setFormCategory] = useState<ScheduleCategory>('Pooja');
+  const [formDate, setFormDate] = useState('15 September 2026');
+  const [formStartTime, setFormStartTime] = useState('07:00 AM');
+  const [formEndTime, setFormEndTime] = useState('');
+  const [formLocation, setFormLocation] = useState('Stage');
+  const [formDescription, setFormDescription] = useState('');
+  const [formActive, setFormActive] = useState(true);
+
+  const openAddScheduleModal = () => {
+    setEditingScheduleItem(null);
+    setFormName('');
+    setFormCategory('Pooja');
+    setFormDate('15 September 2026');
+    setFormStartTime('07:00 AM');
+    setFormEndTime('');
+    setFormLocation('Stage');
+    setFormDescription('');
+    setFormActive(true);
+    setScheduleModalOpen(true);
+  };
+
+  const openEditScheduleModal = (item: ScheduleItem) => {
+    setEditingScheduleItem(item);
+    setFormName(item.name);
+    setFormCategory(item.category as ScheduleCategory);
+    setFormDate(item.date);
+    setFormStartTime(item.startTime);
+    setFormEndTime(item.endTime || '');
+    setFormLocation(item.location || 'Stage');
+    setFormDescription(item.description || '');
+    setFormActive(item.active !== false);
+    setScheduleModalOpen(true);
+  };
+
+  const handleSaveScheduleItem = async () => {
+    if (!formName.trim()) {
+      showNotification('Please enter an activity name', 'error');
+      return;
+    }
+    if (!formStartTime.trim()) {
+      showNotification('Please enter a start time', 'error');
+      return;
+    }
+
+    const currentSchedule = data.schedule || [];
+    let updatedSchedule: ScheduleItem[];
+
+    if (editingScheduleItem) {
+      updatedSchedule = currentSchedule.map((item) =>
+        item.id === editingScheduleItem.id
+          ? {
+              ...item,
+              name: formName.trim(),
+              category: formCategory,
+              date: formDate.trim(),
+              startTime: formStartTime.trim(),
+              endTime: formEndTime.trim() || undefined,
+              location: formLocation.trim() || 'Stage',
+              description: formDescription.trim() || undefined,
+              active: formActive,
+            }
+          : item
+      );
+    } else {
+      const newItem: ScheduleItem = {
+        id: `sch-${Date.now()}`,
+        name: formName.trim(),
+        category: formCategory,
+        date: formDate.trim(),
+        startTime: formStartTime.trim(),
+        endTime: formEndTime.trim() || undefined,
+        location: formLocation.trim() || 'Stage',
+        description: formDescription.trim() || undefined,
+        active: formActive,
+        order: currentSchedule.length + 1,
+      };
+      updatedSchedule = [...currentSchedule, newItem];
+    }
+
+    await saveSection('schedule', updatedSchedule);
+    setScheduleModalOpen(false);
+  };
+
+  const handleDeleteScheduleItem = async () => {
+    if (!deletingScheduleItem) return;
+    const currentSchedule = data.schedule || [];
+    const updatedSchedule = currentSchedule.filter((item) => item.id !== deletingScheduleItem.id);
+    await saveSection('schedule', updatedSchedule);
+    setDeletingScheduleItem(null);
+  };
+
+  const handleToggleScheduleActive = async (item: ScheduleItem) => {
+    const currentSchedule = data.schedule || [];
+    const updatedSchedule = currentSchedule.map((s) =>
+      s.id === item.id ? { ...s, active: !s.active } : s
+    );
+    await saveSection('schedule', updatedSchedule);
+  };
+
   const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 4000);
@@ -108,7 +224,43 @@ export default function AdminDashboardClient({ initialData }: Props) {
         throw new Error(resJson.error || 'Failed to update section');
       }
 
-      setData((prev) => ({ ...prev, [section]: updatedData }));
+      const savedData = resJson.data !== undefined ? resJson.data : updatedData;
+      setData((prev) => ({
+        ...prev,
+        [section]: savedData,
+        ...(section === 'schedule'
+          ? {
+              poojaTimings: (savedData as ScheduleItem[])
+                .filter((s) => ['Pooja', 'Aarti', 'Morning Aarti'].includes(s.category))
+                .map((s, idx) => ({
+                  id: s.id,
+                  name: s.name,
+                  date: s.date,
+                  time: s.startTime,
+                  description: s.description || '',
+                  location: s.location || 'Stage',
+                  isSpecial: s.category === 'Pooja' || Boolean(s.name && s.name.toLowerCase().includes('maha')),
+                  order: idx + 1,
+                })),
+              events: (savedData as ScheduleItem[])
+                .filter((s) => !['Pooja', 'Aarti', 'Morning Aarti'].includes(s.category))
+                .map((s, idx) => ({
+                  id: s.id,
+                  name: s.name,
+                  date: s.date,
+                  startTime: s.startTime,
+                  endTime: s.endTime || '',
+                  description: s.description || '',
+                  location: s.location || 'Stage',
+                  image: '/images/maha-aarti.jpg',
+                  category: s.category as any,
+                  isFeatured: idx < 3,
+                  order: idx + 1,
+                })),
+            }
+          : {}),
+      }));
+
       router.refresh();
       showNotification(`Saved changes for ${section}! Public website is updated.`);
     } catch (err: any) {
@@ -120,11 +272,10 @@ export default function AdminDashboardClient({ initialData }: Props) {
 
   const tabs = [
     { id: 'overview', label: 'Dashboard', icon: Shield },
+    { id: 'schedule', label: 'Festival Schedule', icon: Calendar },
     { id: 'notifications', label: 'Push Alerts', icon: BellRing },
     { id: 'countdowns', label: 'Countdowns', icon: Clock },
     { id: 'visarjan', label: 'Visarjan', icon: Waves },
-    { id: 'pooja', label: 'Pooja Timings', icon: Sparkles },
-    { id: 'events', label: 'Events', icon: Calendar },
     { id: 'announcements', label: 'Announcements', icon: Radio },
     { id: 'gallery', label: 'Gallery', icon: Camera },
     { id: 'volunteers', label: 'Volunteers', icon: HeartHandshake },
@@ -763,379 +914,842 @@ export default function AdminDashboardClient({ initialData }: Props) {
             </div>
           )}
 
-          {/* TAB: POOJA TIMINGS */}
-          {activeTab === 'pooja' && (
+          {/* TAB: FESTIVAL SCHEDULE */}
+          {activeTab === 'schedule' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px', flexWrap: 'wrap', gap: '14px' }}>
                 <div>
-                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
-                    Pooja Timings Management
-                  </h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    All poojas are held at the <strong>Stage</strong>. Update times, dates, or add rituals.
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.6rem', fontWeight: 800 }}>
+                      Festival Schedule & Activities
+                    </h2>
+                    <span style={{ fontSize: '0.78rem', background: 'rgba(212, 175, 55, 0.2)', color: 'var(--gold-300)', padding: '3px 10px', borderRadius: '12px', fontWeight: 700 }}>
+                      {((data.schedule || []).filter((item) => {
+                        if (filterScheduleDay !== 'all' && !item.date.toLowerCase().includes(filterScheduleDay.toLowerCase())) return false;
+                        if (filterScheduleCategory !== 'all' && item.category !== filterScheduleCategory) return false;
+                        if (searchScheduleQuery.trim()) {
+                          const q = searchScheduleQuery.toLowerCase();
+                          return item.name.toLowerCase().includes(q) || (item.description && item.description.toLowerCase().includes(q)) || item.date.toLowerCase().includes(q) || item.startTime.toLowerCase().includes(q);
+                        }
+                        return true;
+                      })).length} Activities
+                    </span>
+                  </div>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: '4px' }}>
+                    Manage every activity happening during Ganesh Utsav 2026. Changes persist to live storage and sync with the public schedule.
                   </p>
                 </div>
+
                 <button
-                  onClick={() => {
-                    const newPooja: PoojaTiming = {
-                      id: `pt-${Date.now()}`,
-                      name: 'Special Pooja',
-                      date: '15 September 2026',
-                      time: '07:00 PM',
-                      description: 'Devotional pooja ceremony at the Stage.',
-                      location: 'Stage',
-                      isSpecial: false,
-                      order: data.poojaTimings.length + 1,
-                    };
-                    const updated = [...data.poojaTimings, newPooja];
-                    saveSection('poojaTimings', updated);
-                  }}
+                  onClick={openAddScheduleModal}
                   className="btn-gold"
-                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+                  style={{ padding: '10px 20px', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                 >
-                  <Plus size={14} />
-                  <span>Add Pooja Timing</span>
+                  <Plus size={16} />
+                  <span>Add Schedule Item</span>
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {data.poojaTimings.map((p, index) => (
-                  <div key={p.id} className="royal-card" style={{ padding: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                      <h4 className="font-royal" style={{ fontSize: '1.15rem', color: 'var(--ivory)' }}>
-                        {p.name}
-                      </h4>
-                      <button
-                        onClick={() => {
-                          const updated = data.poojaTimings.filter((item) => item.id !== p.id);
-                          saveSection('poojaTimings', updated);
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Pooja Name</label>
-                        <input
-                          type="text"
-                          value={p.name}
-                          onChange={(e) => {
-                            const updated = [...data.poojaTimings];
-                            updated[index].name = e.target.value;
-                            setData({ ...data, poojaTimings: updated });
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#1a0407',
-                            border: '1px solid rgba(212, 175, 55, 0.3)',
-                            borderRadius: '6px',
-                            color: '#fff',
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Time</label>
-                        <input
-                          type="text"
-                          value={p.time}
-                          onChange={(e) => {
-                            const updated = [...data.poojaTimings];
-                            updated[index].time = e.target.value;
-                            setData({ ...data, poojaTimings: updated });
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#1a0407',
-                            border: '1px solid rgba(212, 175, 55, 0.3)',
-                            borderRadius: '6px',
-                            color: '#fff',
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Date</label>
-                        <input
-                          type="text"
-                          value={p.date}
-                          onChange={(e) => {
-                            const updated = [...data.poojaTimings];
-                            updated[index].date = e.target.value;
-                            setData({ ...data, poojaTimings: updated });
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#1a0407',
-                            border: '1px solid rgba(212, 175, 55, 0.3)',
-                            borderRadius: '6px',
-                            color: '#fff',
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Location (Strictly Stage)</label>
-                        <input
-                          type="text"
-                          value="Stage"
-                          readOnly
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            background: '#22060a',
-                            border: '1px solid rgba(212, 175, 55, 0.2)',
-                            borderRadius: '6px',
-                            color: 'var(--gold-400)',
-                            fontWeight: 600,
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '10px' }}>
-                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
-                      <input
-                        type="text"
-                        value={p.description}
-                        onChange={(e) => {
-                          const updated = [...data.poojaTimings];
-                          updated[index].description = e.target.value;
-                          setData({ ...data, poojaTimings: updated });
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '8px',
-                          background: '#1a0407',
-                          border: '1px solid rgba(212, 175, 55, 0.3)',
-                          borderRadius: '6px',
-                          color: '#fff',
-                        }}
-                      />
-                    </div>
-
-                    <button
-                      onClick={() => saveSection('poojaTimings', data.poojaTimings)}
-                      className="btn-gold"
-                      style={{ marginTop: '12px', padding: '6px 14px', fontSize: '0.8rem' }}
-                    >
-                      <Save size={13} />
-                      <span>Save Pooja</span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB: EVENTS */}
-          {activeTab === 'events' && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+              {/* Filters & Search Control Bar */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '12px',
+                  marginBottom: '22px',
+                  background: 'rgba(24, 3, 7, 0.75)',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(212, 175, 55, 0.25)',
+                }}
+              >
                 <div>
-                  <h2 className="font-royal gold-shimmer" style={{ fontSize: '1.5rem', fontWeight: 800 }}>
-                    Festival Events Management
-                  </h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    Cultural programs, devotional bhajan nights, and competitions held at the <strong>Stage</strong>.
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newEvent: FestivalEvent = {
-                      id: `ev-${Date.now()}`,
-                      name: 'Devotional Bhajan Sandhya',
-                      date: '17 September 2026',
-                      startTime: '07:30 PM',
-                      endTime: '09:30 PM',
-                      description: 'Special devotional music and collective prayers at the Stage.',
-                      location: 'Stage',
-                      image: '/images/maha-aarti.jpg',
-                      category: 'Bhajan',
-                      isFeatured: false,
-                      order: data.events.length + 1,
-                    };
-                    const updated = [...data.events, newEvent];
-                    saveSection('events', updated);
-                  }}
-                  className="btn-gold"
-                  style={{ padding: '8px 14px', fontSize: '0.85rem' }}
-                >
-                  <Plus size={14} />
-                  <span>Add Event</span>
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {data.events.map((ev, index) => (
-                  <div key={ev.id} className="royal-card" style={{ padding: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <h4 className="font-royal" style={{ fontSize: '1.15rem', color: 'var(--ivory)' }}>
-                          {ev.name}
-                        </h4>
-                        {ev.isFeatured && (
-                          <span style={{ fontSize: '0.72rem', background: 'rgba(212, 175, 55, 0.25)', color: 'var(--gold-400)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                            ★ FEATURED
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => {
-                          const updated = data.events.filter((item) => item.id !== ev.id);
-                          saveSection('events', updated);
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer' }}
-                        title="Delete Event"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Event Title</label>
-                        <input
-                          type="text"
-                          value={ev.name}
-                          onChange={(e) => {
-                            const updated = [...data.events];
-                            updated[index].name = e.target.value;
-                            setData({ ...data, events: updated });
-                          }}
-                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Date</label>
-                        <input
-                          type="text"
-                          value={ev.date}
-                          onChange={(e) => {
-                            const updated = [...data.events];
-                            updated[index].date = e.target.value;
-                            setData({ ...data, events: updated });
-                          }}
-                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Start Time</label>
-                        <input
-                          type="text"
-                          value={ev.startTime}
-                          onChange={(e) => {
-                            const updated = [...data.events];
-                            updated[index].startTime = e.target.value;
-                            setData({ ...data, events: updated });
-                          }}
-                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>End Time</label>
-                        <input
-                          type="text"
-                          value={ev.endTime}
-                          onChange={(e) => {
-                            const updated = [...data.events];
-                            updated[index].endTime = e.target.value;
-                            setData({ ...data, events: updated });
-                          }}
-                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Category</label>
-                        <select
-                          value={ev.category}
-                          onChange={(e) => {
-                            const updated = [...data.events];
-                            updated[index].category = e.target.value as any;
-                            setData({ ...data, events: updated });
-                          }}
-                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
-                        >
-                          <option value="Cultural Program">Cultural Program</option>
-                          <option value="Bhajan">Bhajan</option>
-                          <option value="Kids Activities">Kids Activities</option>
-                          <option value="Dance">Dance</option>
-                          <option value="Music">Music</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Image Path / URL</label>
-                        <input
-                          type="text"
-                          value={ev.image || ''}
-                          onChange={(e) => {
-                            const updated = [...data.events];
-                            updated[index].image = e.target.value;
-                            setData({ ...data, events: updated });
-                          }}
-                          style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ marginBottom: '12px' }}>
-                      <label style={{ fontSize: '0.76rem', color: 'var(--gold-400)' }}>Description</label>
-                      <textarea
-                        rows={2}
-                        value={ev.description}
-                        onChange={(e) => {
-                          const updated = [...data.events];
-                          updated[index].description = e.target.value;
-                          setData({ ...data, events: updated });
-                        }}
-                        style={{ width: '100%', padding: '8px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem', resize: 'vertical' }}
-                      />
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: 'var(--gold-300)', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={ev.isFeatured}
-                          onChange={(e) => {
-                            const updated = [...data.events];
-                            updated[index].isFeatured = e.target.checked;
-                            setData({ ...data, events: updated });
-                          }}
-                        />
-                        <span>Feature on Homepage Hero & Top Cards</span>
-                      </label>
-
-                      <button
-                        onClick={() => saveSection('events', data.events)}
-                        className="btn-gold"
-                        style={{ padding: '6px 14px', fontSize: '0.8rem' }}
-                      >
-                        <Save size={13} />
-                        <span>Save Event</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                <div style={{ marginTop: '10px' }}>
-                  <button
-                    onClick={() => saveSection('events', data.events)}
-                    disabled={savingSection === 'events'}
-                    className="btn-gold"
-                    style={{ padding: '10px 24px', fontSize: '0.92rem' }}
+                  <label style={{ fontSize: '0.75rem', color: 'var(--gold-400)', fontWeight: 700, display: 'block', marginBottom: '5px' }}>
+                    Filter by Festival Day
+                  </label>
+                  <select
+                    value={filterScheduleDay}
+                    onChange={(e) => setFilterScheduleDay(e.target.value)}
+                    style={{ width: '100%', padding: '9px 10px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.86rem' }}
                   >
-                    <Save size={16} />
-                    <span>{savingSection === 'events' ? 'Saving Events...' : 'Save All Event Changes'}</span>
-                  </button>
+                    <option value="all">All Days (14 - 19 Sep)</option>
+                    <option value="14 Sep">Day 1: 14 Sep (Sthapana)</option>
+                    <option value="15 Sep">Day 2: 15 Sep (Bhajan & Dhol)</option>
+                    <option value="16 Sep">Day 3: 16 Sep (Art & Maha Aarti)</option>
+                    <option value="17 Sep">Day 4: 17 Sep (Rangoli)</option>
+                    <option value="18 Sep">Day 5: 18 Sep (Homam & Dance)</option>
+                    <option value="19 Sep">Day 6: 19 Sep (Visarjan)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--gold-400)', fontWeight: 700, display: 'block', marginBottom: '5px' }}>
+                    Filter by Category
+                  </label>
+                  <select
+                    value={filterScheduleCategory}
+                    onChange={(e) => setFilterScheduleCategory(e.target.value)}
+                    style={{ width: '100%', padding: '9px 10px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.86rem' }}
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="Morning Aarti">🌅 Morning Aarti</option>
+                    <option value="Pooja">🪔 Pooja</option>
+                    <option value="Aarti">🔥 Aarti</option>
+                    <option value="Dhol">🥁 Dhol</option>
+                    <option value="Cultural">🎭 Cultural</option>
+                    <option value="Competition">🏆 Competition</option>
+                    <option value="Other">✨ Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: 'var(--gold-400)', fontWeight: 700, display: 'block', marginBottom: '5px' }}>
+                    Search Activities
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="text"
+                      placeholder="Search by name, timing, or notes..."
+                      value={searchScheduleQuery}
+                      onChange={(e) => setSearchScheduleQuery(e.target.value)}
+                      style={{ width: '100%', padding: '9px 10px 9px 32px', background: '#1a0407', border: '1px solid rgba(212, 175, 55, 0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.86rem' }}
+                    />
+                    <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gold-400)' }} />
+                  </div>
                 </div>
               </div>
+
+              {/* DESKTOP TABLE VIEW */}
+              <div className="admin-desktop-table royal-card" style={{ padding: '0', overflow: 'hidden', border: '1.5px solid var(--border-gold)' }}>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
+                    <thead>
+                      <tr style={{ background: 'rgba(38, 5, 10, 0.95)', borderBottom: '1.5px solid rgba(212, 175, 55, 0.3)' }}>
+                        <th style={{ padding: '14px 16px', color: 'var(--gold-400)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase' }}>Time</th>
+                        <th style={{ padding: '14px 16px', color: 'var(--gold-400)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase' }}>Activity & Details</th>
+                        <th style={{ padding: '14px 16px', color: 'var(--gold-400)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase' }}>Category</th>
+                        <th style={{ padding: '14px 16px', color: 'var(--gold-400)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase' }}>Date</th>
+                        <th style={{ padding: '14px 16px', color: 'var(--gold-400)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase' }}>Location</th>
+                        <th style={{ padding: '14px 16px', color: 'var(--gold-400)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase' }}>Status</th>
+                        <th style={{ padding: '14px 16px', color: 'var(--gold-400)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortScheduleChronologically((data.schedule || []).filter((item) => {
+                        if (filterScheduleDay !== 'all' && !item.date.toLowerCase().includes(filterScheduleDay.toLowerCase())) return false;
+                        if (filterScheduleCategory !== 'all' && item.category !== filterScheduleCategory) return false;
+                        if (searchScheduleQuery.trim()) {
+                          const q = searchScheduleQuery.toLowerCase();
+                          return item.name.toLowerCase().includes(q) || (item.description && item.description.toLowerCase().includes(q)) || item.date.toLowerCase().includes(q) || item.startTime.toLowerCase().includes(q);
+                        }
+                        return true;
+                      })).length > 0 ? (
+                        sortScheduleChronologically((data.schedule || []).filter((item) => {
+                          if (filterScheduleDay !== 'all' && !item.date.toLowerCase().includes(filterScheduleDay.toLowerCase())) return false;
+                          if (filterScheduleCategory !== 'all' && item.category !== filterScheduleCategory) return false;
+                          if (searchScheduleQuery.trim()) {
+                            const q = searchScheduleQuery.toLowerCase();
+                            return item.name.toLowerCase().includes(q) || (item.description && item.description.toLowerCase().includes(q)) || item.date.toLowerCase().includes(q) || item.startTime.toLowerCase().includes(q);
+                          }
+                          return true;
+                        })).map((item, idx) => {
+                          const badge = getCategoryBadgeStyle(item.category);
+                          const isActive = item.active !== false;
+                          return (
+                            <tr
+                              key={item.id}
+                              style={{
+                                borderBottom: '1px solid rgba(212, 175, 55, 0.12)',
+                                background: idx % 2 === 0 ? 'rgba(18, 2, 4, 0.6)' : 'rgba(28, 4, 8, 0.6)',
+                                transition: 'background 0.15s ease',
+                              }}
+                            >
+                              <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                                <div style={{ fontWeight: 700, color: 'var(--gold-300)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                                  <Clock size={13} color="#FFA000" />
+                                  <span>{item.startTime}</span>
+                                </div>
+                                {item.endTime && (
+                                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                                    to {item.endTime}
+                                  </div>
+                                )}
+                              </td>
+                              <td style={{ padding: '14px 16px', maxWidth: '320px' }}>
+                                <div style={{ fontWeight: 700, color: 'var(--ivory)', fontSize: '0.94rem' }}>
+                                  {item.name}
+                                </div>
+                                {item.description && (
+                                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '3px', lineHeight: 1.3 }}>
+                                    {item.description}
+                                  </div>
+                                )}
+                              </td>
+                              <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                                <span
+                                  style={{
+                                    background: badge.bg,
+                                    color: badge.color,
+                                    border: badge.border,
+                                    padding: '3px 10px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.74rem',
+                                    fontWeight: 700,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                  }}
+                                >
+                                  <span>{badge.icon}</span>
+                                  <span>{item.category}</span>
+                                </span>
+                              </td>
+                              <td style={{ padding: '14px 16px', whiteSpace: 'nowrap', color: 'var(--cream)', fontSize: '0.84rem' }}>
+                                {item.date}
+                              </td>
+                              <td style={{ padding: '14px 16px', whiteSpace: 'nowrap', color: 'var(--gold-300)', fontSize: '0.84rem' }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                  <MapPin size={13} color="#FFA000" />
+                                  <span>{item.location || 'Stage'}</span>
+                                </span>
+                              </td>
+                              <td style={{ padding: '14px 16px', whiteSpace: 'nowrap' }}>
+                                <button
+                                  onClick={() => handleToggleScheduleActive(item)}
+                                  style={{
+                                    background: isActive ? 'rgba(46, 125, 50, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                                    color: isActive ? '#81c784' : 'var(--text-muted)',
+                                    border: isActive ? '1px solid rgba(76, 175, 80, 0.4)' : '1px solid rgba(255, 255, 255, 0.15)',
+                                    borderRadius: '16px',
+                                    padding: '3px 10px',
+                                    fontSize: '0.74rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                  }}
+                                  title="Click to toggle public visibility"
+                                >
+                                  {isActive ? <Eye size={12} /> : <EyeOff size={12} />}
+                                  <span>{isActive ? 'Active' : 'Hidden'}</span>
+                                </button>
+                              </td>
+                              <td style={{ padding: '14px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                  <button
+                                    onClick={() => openEditScheduleModal(item)}
+                                    style={{
+                                      background: 'rgba(212, 175, 55, 0.15)',
+                                      border: '1px solid rgba(212, 175, 55, 0.35)',
+                                      color: 'var(--gold-300)',
+                                      padding: '5px 10px',
+                                      borderRadius: '6px',
+                                      fontSize: '0.78rem',
+                                      fontWeight: 600,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                    }}
+                                  >
+                                    <Edit size={13} />
+                                    <span>Edit</span>
+                                  </button>
+                                  <button
+                                    onClick={() => setDeletingScheduleItem(item)}
+                                    style={{
+                                      background: 'rgba(211, 47, 47, 0.18)',
+                                      border: '1px solid rgba(255, 82, 82, 0.35)',
+                                      color: '#ff8a80',
+                                      padding: '5px 10px',
+                                      borderRadius: '6px',
+                                      fontSize: '0.78rem',
+                                      fontWeight: 600,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                    }}
+                                  >
+                                    <Trash2 size={13} />
+                                    <span>Delete</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan={7} style={{ padding: '36px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                            No schedule activities match your filter criteria.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* MOBILE CARDS VIEW (Screens < 860px) */}
+              <div className="admin-mobile-cards" style={{ display: 'none', flexDirection: 'column', gap: '14px' }}>
+                {sortScheduleChronologically((data.schedule || []).filter((item) => {
+                  if (filterScheduleDay !== 'all' && !item.date.toLowerCase().includes(filterScheduleDay.toLowerCase())) return false;
+                  if (filterScheduleCategory !== 'all' && item.category !== filterScheduleCategory) return false;
+                  if (searchScheduleQuery.trim()) {
+                    const q = searchScheduleQuery.toLowerCase();
+                    return item.name.toLowerCase().includes(q) || (item.description && item.description.toLowerCase().includes(q)) || item.date.toLowerCase().includes(q) || item.startTime.toLowerCase().includes(q);
+                  }
+                  return true;
+                })).length > 0 ? (
+                  sortScheduleChronologically((data.schedule || []).filter((item) => {
+                    if (filterScheduleDay !== 'all' && !item.date.toLowerCase().includes(filterScheduleDay.toLowerCase())) return false;
+                    if (filterScheduleCategory !== 'all' && item.category !== filterScheduleCategory) return false;
+                    if (searchScheduleQuery.trim()) {
+                      const q = searchScheduleQuery.toLowerCase();
+                      return item.name.toLowerCase().includes(q) || (item.description && item.description.toLowerCase().includes(q)) || item.date.toLowerCase().includes(q) || item.startTime.toLowerCase().includes(q);
+                    }
+                    return true;
+                  })).map((item) => {
+                    const badge = getCategoryBadgeStyle(item.category);
+                    const isActive = item.active !== false;
+                    return (
+                      <div
+                        key={item.id}
+                        className="royal-card"
+                        style={{
+                          padding: '16px',
+                          border: '1px solid rgba(212, 175, 55, 0.25)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <span
+                            style={{
+                              background: badge.bg,
+                              color: badge.color,
+                              border: badge.border,
+                              padding: '3px 9px',
+                              borderRadius: '6px',
+                              fontSize: '0.74rem',
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <span>{badge.icon}</span>
+                            <span>{item.category}</span>
+                          </span>
+
+                          <button
+                            onClick={() => handleToggleScheduleActive(item)}
+                            style={{
+                              background: isActive ? 'rgba(46, 125, 50, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                              color: isActive ? '#81c784' : 'var(--text-muted)',
+                              border: isActive ? '1px solid rgba(76, 175, 80, 0.4)' : '1px solid rgba(255, 255, 255, 0.15)',
+                              borderRadius: '16px',
+                              padding: '2px 8px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            {isActive ? <Eye size={11} /> : <EyeOff size={11} />}
+                            <span>{isActive ? 'Active' : 'Hidden'}</span>
+                          </button>
+                        </div>
+
+                        <div>
+                          <h4 className="font-royal" style={{ fontSize: '1.05rem', color: 'var(--ivory)', fontWeight: 700 }}>
+                            {item.name}
+                          </h4>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.78rem', color: 'var(--gold-400)', marginTop: '4px', flexWrap: 'wrap' }}>
+                            <span>📅 {item.date}</span>
+                            <span>⏰ {item.startTime} {item.endTime ? `- ${item.endTime}` : ''}</span>
+                            <span>📍 {item.location || 'Stage'}</span>
+                          </div>
+                          {item.description && (
+                            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.35 }}>
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid rgba(212, 175, 55, 0.15)' }}>
+                          <button
+                            onClick={() => openEditScheduleModal(item)}
+                            style={{
+                              flex: 1,
+                              background: 'rgba(212, 175, 55, 0.18)',
+                              border: '1px solid rgba(212, 175, 55, 0.4)',
+                              color: 'var(--gold-300)',
+                              padding: '8px',
+                              borderRadius: '6px',
+                              fontSize: '0.82rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '5px',
+                            }}
+                          >
+                            <Edit size={13} />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => setDeletingScheduleItem(item)}
+                            style={{
+                              flex: 1,
+                              background: 'rgba(211, 47, 47, 0.2)',
+                              border: '1px solid rgba(255, 82, 82, 0.4)',
+                              color: '#ff8a80',
+                              padding: '8px',
+                              borderRadius: '6px',
+                              fontSize: '0.82rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '5px',
+                            }}
+                          >
+                            <Trash2 size={13} />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="royal-card" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    No schedule activities match your filter.
+                  </div>
+                )}
+              </div>
+
+              {/* Add/Edit Schedule Modal */}
+              {scheduleModalOpen && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.78)',
+                    backdropFilter: 'blur(4px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 150,
+                    padding: '16px',
+                  }}
+                >
+                  <div
+                    className="royal-card"
+                    style={{
+                      maxWidth: '560px',
+                      width: '100%',
+                      maxHeight: '90vh',
+                      overflowY: 'auto',
+                      padding: '26px',
+                      border: '2px solid var(--gold-500)',
+                      boxShadow: '0 16px 50px rgba(0,0,0,0.85)',
+                      borderRadius: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: '1px solid rgba(212, 175, 55, 0.2)', paddingBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Calendar size={20} color="var(--gold-400)" />
+                        <h3 className="font-royal" style={{ fontSize: '1.3rem', color: 'var(--ivory)', margin: 0 }}>
+                          {editingScheduleItem ? 'Edit Schedule Item' : 'Add New Schedule Item'}
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => setScheduleModalOpen(false)}
+                        style={{ background: 'none', border: 'none', color: 'var(--gold-400)', cursor: 'pointer', padding: '4px' }}
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {/* Event Name */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: 700, marginBottom: '5px' }}>
+                          Activity / Event Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={formName}
+                          onChange={(e) => setFormName(e.target.value)}
+                          placeholder="e.g. Morning Aarti, Dhol Tasha Pathak, Maha Aarti"
+                          style={{
+                            width: '100%',
+                            padding: '9px 12px',
+                            background: '#1a0407',
+                            border: '1px solid var(--border-gold)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                            fontSize: '0.9rem',
+                          }}
+                        />
+                      </div>
+
+                      {/* Category & Location */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: 700, marginBottom: '5px' }}>
+                            Category *
+                          </label>
+                          <select
+                            value={formCategory}
+                            onChange={(e) => setFormCategory(e.target.value as ScheduleCategory)}
+                            style={{
+                              width: '100%',
+                              padding: '9px 10px',
+                              background: '#1a0407',
+                              border: '1px solid var(--border-gold)',
+                              borderRadius: '6px',
+                              color: '#fff',
+                              fontSize: '0.88rem',
+                            }}
+                          >
+                            <option value="Morning Aarti">🌅 Morning Aarti</option>
+                            <option value="Pooja">🪔 Pooja</option>
+                            <option value="Aarti">🔥 Aarti</option>
+                            <option value="Dhol">🥁 Dhol</option>
+                            <option value="Cultural">🎭 Cultural</option>
+                            <option value="Competition">🏆 Competition</option>
+                            <option value="Other">✨ Other</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: 700, marginBottom: '5px' }}>
+                            Location / Stage *
+                          </label>
+                          <input
+                            type="text"
+                            value={formLocation}
+                            onChange={(e) => setFormLocation(e.target.value)}
+                            placeholder="e.g. Stage"
+                            style={{
+                              width: '100%',
+                              padding: '9px 12px',
+                              background: '#1a0407',
+                              border: '1px solid var(--border-gold)',
+                              borderRadius: '6px',
+                              color: '#fff',
+                              fontSize: '0.88rem',
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Date */}
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                          <label style={{ fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: 700 }}>
+                            Festival Date *
+                          </label>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Choose or type custom</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value) setFormDate(e.target.value);
+                            }}
+                            defaultValue=""
+                            style={{
+                              flex: 1,
+                              padding: '8px 10px',
+                              background: '#1a0407',
+                              border: '1px solid var(--border-gold)',
+                              borderRadius: '6px',
+                              color: 'var(--gold-300)',
+                              fontSize: '0.82rem',
+                            }}
+                          >
+                            <option value="" disabled>Quick select festival day...</option>
+                            <option value="14 September 2026">14 Sep 2026 (Day 1 - Sthapana)</option>
+                            <option value="15 September 2026">15 Sep 2026 (Day 2 - Bhajan & Dhol)</option>
+                            <option value="16 September 2026">16 Sep 2026 (Day 3 - Maha Aarti)</option>
+                            <option value="17 September 2026">17 Sep 2026 (Day 4 - Cultural & Rangoli)</option>
+                            <option value="18 September 2026">18 Sep 2026 (Day 5 - Homam & Competition)</option>
+                            <option value="19 September 2026">19 Sep 2026 (Day 6 - Visarjan)</option>
+                          </select>
+                        </div>
+                        <input
+                          type="text"
+                          value={formDate}
+                          onChange={(e) => setFormDate(e.target.value)}
+                          placeholder="e.g. 15 September 2026"
+                          style={{
+                            width: '100%',
+                            padding: '9px 12px',
+                            background: '#1a0407',
+                            border: '1px solid var(--border-gold)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                            fontSize: '0.88rem',
+                          }}
+                        />
+                      </div>
+
+                      {/* Timings */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: 700, marginBottom: '5px' }}>
+                            Start Time *
+                          </label>
+                          <input
+                            type="text"
+                            value={formStartTime}
+                            onChange={(e) => setFormStartTime(e.target.value)}
+                            placeholder="e.g. 07:00 AM or 06:00 PM"
+                            style={{
+                              width: '100%',
+                              padding: '9px 12px',
+                              background: '#1a0407',
+                              border: '1px solid var(--border-gold)',
+                              borderRadius: '6px',
+                              color: '#fff',
+                              fontSize: '0.88rem',
+                            }}
+                          />
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '5px', flexWrap: 'wrap' }}>
+                            {['7:00 AM', '12:00 PM', '6:00 PM', '7:30 PM'].map((t) => (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => setFormStartTime(t)}
+                                style={{
+                                  background: 'rgba(212, 175, 55, 0.1)',
+                                  border: '1px solid rgba(212, 175, 55, 0.3)',
+                                  color: 'var(--gold-300)',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontSize: '0.68rem',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {t}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: 700, marginBottom: '5px' }}>
+                            End Time <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(Optional)</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={formEndTime}
+                            onChange={(e) => setFormEndTime(e.target.value)}
+                            placeholder="e.g. 08:30 AM or 09:00 PM"
+                            style={{
+                              width: '100%',
+                              padding: '9px 12px',
+                              background: '#1a0407',
+                              border: '1px solid var(--border-gold)',
+                              borderRadius: '6px',
+                              color: '#fff',
+                              fontSize: '0.88rem',
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: 700, marginBottom: '5px' }}>
+                          Description / Devotee Instructions <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(Optional)</span>
+                        </label>
+                        <textarea
+                          value={formDescription}
+                          onChange={(e) => setFormDescription(e.target.value)}
+                          placeholder="Provide details such as participating teams, samagri requirements, dress code, etc."
+                          rows={3}
+                          style={{
+                            width: '100%',
+                            padding: '9px 12px',
+                            background: '#1a0407',
+                            border: '1px solid var(--border-gold)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                            fontSize: '0.86rem',
+                            resize: 'vertical',
+                          }}
+                        />
+                      </div>
+
+                      {/* Status Toggle */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px',
+                          background: 'rgba(212, 175, 55, 0.06)',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(212, 175, 55, 0.2)',
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.86rem', color: 'var(--ivory)' }}>
+                            Public Visibility Status
+                          </div>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                            {formActive ? 'Active — Devotees can view this activity on public website' : 'Hidden — Visible only in Admin'}
+                          </div>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={formActive}
+                            onChange={(e) => setFormActive(e.target.checked)}
+                            style={{ width: '18px', height: '18px', accentColor: '#D4AF37' }}
+                          />
+                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: formActive ? '#81c784' : '#ff8a80' }}>
+                            {formActive ? 'Active' : 'Hidden'}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Modal Actions */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '22px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setScheduleModalOpen(false)}
+                        className="btn-outline-gold"
+                        style={{ padding: '8px 18px', fontSize: '0.86rem' }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveScheduleItem}
+                        disabled={savingSection === 'schedule'}
+                        className="btn-gold"
+                        style={{ padding: '8px 22px', fontSize: '0.86rem', opacity: savingSection === 'schedule' ? 0.7 : 1 }}
+                      >
+                        <Save size={15} />
+                        <span>{savingSection === 'schedule' ? 'Saving...' : editingScheduleItem ? 'Update Activity' : 'Save Activity'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Delete Confirmation Modal */}
+              {deletingScheduleItem && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.82)',
+                    backdropFilter: 'blur(4px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 160,
+                    padding: '16px',
+                  }}
+                >
+                  <div
+                    className="royal-card"
+                    style={{
+                      maxWidth: '460px',
+                      width: '100%',
+                      padding: '24px',
+                      border: '2px solid rgba(211, 47, 47, 0.6)',
+                      boxShadow: '0 16px 50px rgba(0,0,0,0.9)',
+                      borderRadius: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '16px' }}>
+                      <div
+                        style={{
+                          background: 'rgba(211, 47, 47, 0.2)',
+                          padding: '10px',
+                          borderRadius: '50%',
+                          color: '#ff8a80',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Trash2 size={24} />
+                      </div>
+                      <div>
+                        <h3 className="font-royal" style={{ fontSize: '1.2rem', color: '#fff', margin: '0 0 6px 0' }}>
+                          Delete Schedule Activity?
+                        </h3>
+                        <p style={{ fontSize: '0.86rem', color: 'var(--cream)', lineHeight: 1.4, margin: 0 }}>
+                          Are you sure you want to delete <strong style={{ color: 'var(--gold-300)' }}>&ldquo;{deletingScheduleItem.name}&rdquo;</strong> scheduled on <strong style={{ color: 'var(--gold-300)' }}>{deletingScheduleItem.date} at {deletingScheduleItem.startTime}</strong>?
+                        </p>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '10px 14px',
+                        background: 'rgba(211, 47, 47, 0.1)',
+                        border: '1px solid rgba(211, 47, 47, 0.25)',
+                        borderRadius: '6px',
+                        fontSize: '0.78rem',
+                        color: '#ff8a80',
+                        marginBottom: '20px',
+                      }}
+                    >
+                      ⚠️ This will immediately remove the entry from both the Admin Console and the live public festival calendar.
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setDeletingScheduleItem(null)}
+                        className="btn-outline-gold"
+                        style={{ padding: '8px 16px', fontSize: '0.86rem' }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDeleteScheduleItem}
+                        disabled={savingSection === 'schedule'}
+                        style={{
+                          background: '#d32f2f',
+                          border: '1px solid #ff5252',
+                          color: '#fff',
+                          padding: '8px 18px',
+                          borderRadius: '6px',
+                          fontSize: '0.86rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          opacity: savingSection === 'schedule' ? 0.7 : 1,
+                        }}
+                      >
+                        <Trash2 size={14} />
+                        <span>{savingSection === 'schedule' ? 'Deleting...' : 'Confirm Delete'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

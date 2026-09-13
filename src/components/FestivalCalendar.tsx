@@ -1,15 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FestivalEvent, PoojaTiming } from '@/lib/types';
-import { Calendar, Clock, MapPin, Sparkles } from 'lucide-react';
+import { FestivalEvent, PoojaTiming, ScheduleItem } from '@/lib/types';
+import { Calendar, Clock, MapPin, Sparkles, Filter } from 'lucide-react';
+import {
+  sortScheduleChronologically,
+  getCategoryBadgeStyle,
+} from '@/lib/schedule-utils';
 
 interface CalendarProps {
-  events: FestivalEvent[];
-  poojaTimings: PoojaTiming[];
+  schedule?: ScheduleItem[];
+  events?: FestivalEvent[];
+  poojaTimings?: PoojaTiming[];
 }
 
-export default function FestivalCalendar({ events, poojaTimings }: CalendarProps) {
+export default function FestivalCalendar({
+  schedule,
+  events = [],
+  poojaTimings = [],
+}: CalendarProps) {
   // Festival Days (Sep 14 to Sep 19, 2026 - Visarjan on 19 Sep)
   const festivalDays = [
     { dayNumber: 1, dateStr: '14 Sep', fullDate: '14 September 2026', title: 'Ganesh Chaturthi Sthapana' },
@@ -21,18 +30,66 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
   ];
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const currentDay = festivalDays[selectedDayIndex];
 
-  // Match items for the selected day
-  const dayEvents = events.filter((e) =>
-    e.date.toLowerCase().includes(currentDay.dateStr.toLowerCase())
+  // Derive all items from schedule source of truth (or fallback to legacy events/poojaTimings)
+  const allItems: ScheduleItem[] =
+    schedule && schedule.length > 0
+      ? schedule
+      : [
+          ...poojaTimings.map((p) => ({
+            id: p.id,
+            name: p.name,
+            category: (p.name.toLowerCase().includes('morning')
+              ? 'Morning Aarti'
+              : p.name.toLowerCase().includes('aarti')
+              ? 'Aarti'
+              : 'Pooja') as any,
+            date: p.date,
+            startTime: p.time,
+            location: p.location || 'Stage',
+            description: p.description,
+            active: true,
+          })),
+          ...events.map((e) => ({
+            id: e.id,
+            name: e.name,
+            category: (e.category === 'Special Pooja'
+              ? 'Pooja'
+              : e.category === 'Kids Activities'
+              ? 'Competition'
+              : 'Cultural') as any,
+            date: e.date,
+            startTime: e.startTime,
+            endTime: e.endTime,
+            location: e.location || 'Stage',
+            description: e.description,
+            active: true,
+          })),
+        ];
+
+  // Filter for active items on the selected day
+  const dayItems = allItems.filter(
+    (item) =>
+      item.active !== false &&
+      (item.date.toLowerCase().includes(currentDay.dateStr.toLowerCase()) ||
+        item.date.toLowerCase().includes('daily'))
   );
 
-  const dayPoojas = poojaTimings.filter(
-    (p) =>
-      p.date.toLowerCase().includes(currentDay.dateStr.toLowerCase()) ||
-      p.date.toLowerCase().includes('daily')
-  );
+  // Sort strictly chronologically by start time!
+  const sortedItems = sortScheduleChronologically(dayItems);
+
+  // Apply optional category filter
+  const displayedItems =
+    selectedCategory === 'All'
+      ? sortedItems
+      : sortedItems.filter((item) => item.category === selectedCategory);
+
+  const availableCategories = [
+    'All',
+    ...Array.from(new Set(sortedItems.map((item) => item.category))),
+  ];
 
   return (
     <section id="calendar" className="section-py" style={{ position: 'relative' }}>
@@ -44,7 +101,8 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
             <span className="gold-shimmer">Calendar</span>
           </h2>
           <p className="section-subtitle">
-            Explore the complete celebration schedule from 14 to 19 September 2026. Select any date to see poojas and cultural programs planned at the Stage.
+            Explore the complete celebration schedule from 14 to 19 September 2026.
+            Select any date to see poojas, aartis, dhol sessions, and cultural programs planned at the Stage.
           </p>
         </div>
 
@@ -55,7 +113,7 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
             gap: '12px',
             overflowX: 'auto',
             paddingBottom: '16px',
-            marginBottom: '32px',
+            marginBottom: '28px',
             scrollbarWidth: 'thin',
           }}
         >
@@ -64,7 +122,10 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
             return (
               <button
                 key={d.dayNumber}
-                onClick={() => setSelectedDayIndex(index)}
+                onClick={() => {
+                  setSelectedDayIndex(index);
+                  setSelectedCategory('All');
+                }}
                 style={{
                   flex: '1 0 140px',
                   maxWidth: '180px',
@@ -124,10 +185,11 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
         <div
           className="royal-card"
           style={{
-            padding: '30px',
+            padding: '28px',
             border: '1.5px solid var(--border-gold-glow)',
           }}
         >
+          {/* Header Row */}
           <div
             style={{
               display: 'flex',
@@ -137,16 +199,17 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
               gap: '12px',
               borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
               paddingBottom: '18px',
-              marginBottom: '26px',
+              marginBottom: '20px',
             }}
           >
             <div>
               <div
                 style={{
-                  fontSize: '0.8rem',
+                  fontSize: '0.78rem',
                   color: 'var(--gold-400)',
                   fontWeight: 700,
                   letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
                 }}
               >
                 DAY {currentDay.dayNumber} OF 6
@@ -154,7 +217,7 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
               <h3
                 className="font-royal gold-shimmer"
                 style={{
-                  fontSize: '1.6rem',
+                  fontSize: '1.5rem',
                   fontWeight: 800,
                 }}
               >
@@ -178,133 +241,156 @@ export default function FestivalCalendar({ events, poojaTimings }: CalendarProps
             </div>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '28px',
-            }}
-          >
-            {/* Daily Poojas */}
-            <div>
-              <h4
-                style={{
-                  fontSize: '0.95rem',
-                  color: 'var(--gold-300)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                  marginBottom: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <span>🪔</span>
-                <span>Poojas & Aartis</span>
-              </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {dayPoojas.length > 0 ? (
-                  dayPoojas.map((p) => (
-                    <div
-                      key={p.id}
-                      style={{
-                        padding: '14px 16px',
-                        background: 'rgba(20, 3, 5, 0.7)',
-                        border: '1px solid rgba(212, 175, 55, 0.2)',
-                        borderRadius: '10px',
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: '0.78rem',
-                          color: 'var(--gold-400)',
-                          fontWeight: 600,
-                          marginBottom: '3px',
-                        }}
-                      >
-                        {p.time} • Stage
-                      </div>
-                      <div style={{ fontWeight: 600, color: 'var(--ivory)', fontSize: '0.95rem', marginBottom: '4px' }}>
-                        {p.name}
-                      </div>
-                      <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                        {p.description}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    Nitya Evening Aarti (7:30 PM) is held daily at the Stage.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Cultural Events */}
-            <div>
-              <h4
-                style={{
-                  fontSize: '0.95rem',
-                  color: 'var(--gold-300)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  fontWeight: 700,
-                  marginBottom: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                <Sparkles size={16} color="#FFA000" />
-                <span>Special Program</span>
-              </h4>
-              {dayEvents.length > 0 ? (
-                dayEvents.map((e) => (
-                  <div
-                    key={e.id}
+          {/* Optional Category Filter Pills */}
+          {availableCategories.length > 2 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                marginBottom: '22px',
+              }}
+            >
+              {availableCategories.map((cat) => {
+                const isCatSelected = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
                     style={{
-                      padding: '14px 16px',
-                      background: 'rgba(20, 3, 5, 0.7)',
-                      border: '1px solid rgba(212, 175, 55, 0.2)',
-                      borderRadius: '10px',
-                      marginBottom: '12px',
+                      padding: '5px 14px',
+                      borderRadius: '16px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      border: isCatSelected
+                        ? '1px solid var(--gold-400)'
+                        : '1px solid rgba(212, 175, 55, 0.2)',
+                      background: isCatSelected
+                        ? 'rgba(212, 175, 55, 0.25)'
+                        : 'rgba(20, 3, 5, 0.6)',
+                      color: isCatSelected ? 'var(--gold-300)' : 'var(--cream)',
+                      transition: 'all 0.15s ease',
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: '0.78rem',
-                        color: 'var(--gold-400)',
-                        fontWeight: 600,
-                        marginBottom: '3px',
-                      }}
-                    >
-                      {e.startTime} - {e.endTime} • Stage
-                    </div>
-                    <div style={{ fontWeight: 600, color: 'var(--ivory)', fontSize: '0.95rem', marginBottom: '4px' }}>
-                      {e.name}
-                    </div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                      {e.description}
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Chronological Schedule Activities List */}
+          {displayedItems.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {displayedItems.map((item) => {
+                const badge = getCategoryBadgeStyle(item.category);
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: '16px 20px',
+                      background: 'rgba(20, 3, 5, 0.75)',
+                      border: '1px solid rgba(212, 175, 55, 0.22)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '14px',
+                      transition: 'border 0.2s ease, transform 0.2s ease',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flex: '1 1 300px' }}>
+                      {/* Time Pillar */}
+                      <div
+                        style={{
+                          minWidth: '100px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '2px',
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            color: 'var(--gold-400)',
+                            fontWeight: 700,
+                            fontSize: '0.88rem',
+                          }}
+                        >
+                          <Clock size={14} color="#FFA000" />
+                          <span>{item.startTime}</span>
+                        </div>
+                        {item.endTime && (
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginLeft: '19px' }}>
+                            to {item.endTime}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Details */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                          <span
+                            style={{
+                              background: badge.bg,
+                              color: badge.color,
+                              border: badge.border,
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <span>{badge.icon}</span>
+                            <span>{item.category}</span>
+                          </span>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                            • {item.location || 'Stage'}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            color: 'var(--ivory)',
+                            fontSize: '1rem',
+                            marginBottom: item.description ? '3px' : '0',
+                          }}
+                        >
+                          {item.name}
+                        </div>
+                        {item.description && (
+                          <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                            {item.description}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div
-                  style={{
-                    padding: '20px',
-                    background: 'rgba(20, 3, 5, 0.5)',
-                    borderRadius: '10px',
-                    color: 'var(--text-muted)',
-                    fontSize: '0.88rem',
-                    border: '1px dashed rgba(212, 175, 55, 0.2)',
-                  }}
-                >
-                  Open community darshan, devotional bhajans, and family blessings at the Stage.
-                </div>
-              )}
+                );
+              })}
             </div>
-          </div>
+          ) : (
+            <div
+              style={{
+                padding: '30px',
+                textAlign: 'center',
+                background: 'rgba(20, 3, 5, 0.5)',
+                borderRadius: '12px',
+                color: 'var(--text-muted)',
+                fontSize: '0.9rem',
+                border: '1px dashed rgba(212, 175, 55, 0.2)',
+              }}
+            >
+              Open community darshan, devotional bhajans, and family blessings at the Stage.
+            </div>
+          )}
         </div>
       </div>
     </section>

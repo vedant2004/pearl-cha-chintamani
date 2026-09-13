@@ -451,3 +451,21 @@ body {
   }
 }
 
+/* Admin Schedule Table Responsiveness */
+.admin-desktop-table {
+  display: block;
+}
+.admin-mobile-cards {
+  display: none !important;
+}
+
+@media (max-width: 860px) {
+  .admin-desktop-table {
+    display: none !important;
+  }
+  .admin-mobile-cards {
+    display: flex !important;
+  }
+}
+
+
